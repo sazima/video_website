@@ -4,10 +4,11 @@
         <b-container :fluid='true'>
             <b-row align-h="center">
                 <b-col cols="12" md="10">
-                    <content-item :show-more-button="true" style="margin-top: 40px" title="电影"></content-item>
-                    <content-item :show-more-button="true" style="margin-top: 40px" title="电视剧"></content-item>
-                    <content-item :show-more-button="true" style="margin-top: 40px" title="综艺"></content-item>
-                    <content-item :show-more-button="true" style="margin-top: 40px" title="咨询"></content-item>
+                    <content-item
+                            v-for="item in typeItems" :show-more-button="true" :title="item.type_name"
+                            :videos="item.videos"
+                            :type_en="item.type_en"
+                            style="margin-top: 40px" :key="item.type_en"></content-item>
                 </b-col>
             </b-row>
         </b-container>
@@ -18,27 +19,27 @@
 
   import SlideImage from "../components/SlideImage";
   import ContentItem from "../components/ContentItem";
+  import {getIndexTree} from "../apis/index"
 
   export default {
     name: 'Home',
     components: {SlideImage, ContentItem},
     data() {
       return {
-        items: [
-          {
-            text: 'Admin',
-            href: '#'
-          },
-          {
-            text: 'Manage',
-            href: '#'
-          },
-          {
-            text: 'Library',
-            active: true
-          }
-        ],
+        typeItems: []
       }
+    },
+    async mounted() {
+      document.title = '电影网站'
+      let indexTree = await getIndexTree()
+      for (let typeItem of indexTree) {
+        this.typeItems.push({
+          type_en: typeItem.type_en,
+          type_name: typeItem.type_name,
+          videos: typeItem.videos
+        })
+      }
+      console.log(this.typeItems);
     }
   }
 </script>
