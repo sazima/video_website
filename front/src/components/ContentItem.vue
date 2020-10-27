@@ -34,9 +34,9 @@
       }
     },
     mounted() {
-      if (this.$refs.card) {
+      setInterval(() => {
         this.img_width = this.$refs.card[0].clientWidth
-      }
+      }, 1000)
     }
   }
 </script>

@@ -10,6 +10,11 @@ import Video from "video.js";
 import "video.js/dist/video-js.min.css"
 Vue.prototype.$video = Video
 
+import VConsole from 'vconsole'
+
+if (process.env.NODE_ENV === 'development') {
+  new VConsole()
+}
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 
