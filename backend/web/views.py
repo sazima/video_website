@@ -60,6 +60,49 @@ class VideoView(View):
             'data': [x for x in videos]
         })
 
+    @request_mapping('/get_by_id')
+    def get_by_id(self, request):
+        vod_id = request.GET.get('vod_id')
+        if not vod_id:
+            return NotFoundResponse()
+        video = MacVod.objects.values(
+            'vod_id', 'vod_name', 'vod_time', 'vod_pic', 'vod_play_url'
+        ).filter(vod_id=vod_id).first()
+        if not video:
+            return NotFoundResponse()
+        vod_play_url = video.get('vod_play_url')
+        urls = self._parse_vod_play_url(vod_play_url)
+        return Response({
+            'vod_id': vod_id,
+            'vod_name': video.get('vod_name'),
+            'urls': urls
+        })
+
+    @staticmethod
+    def _parse_vod_play_url(play_url: str):
+        if play_url.startswith('http'):
+            return [{
+                'play_line_name': '播放地址1',
+                'links': [{'name': '在线播放', 'link': play_url}]
+            }]
+        play_group_links = play_url.split('$$$')
+        play_group_links_list = []
+        for index, links in enumerate(play_group_links):
+            name_eps = links.split('$$')
+            links = []
+            for eps in name_eps:
+                for ep in eps.split('#'):
+                    name, link = ep.split('$')
+                    links.append({
+                        'name': name,
+                        'link': link
+                    })
+            play_group_links_list.append({
+                'play_line_name': '播放地址{}'.format(index + 1),
+                'links': links
+            })
+        return play_group_links_list
+
 
 class _IndexTreeReturnDict(TypedDict):
     class Videos(TypedDict):

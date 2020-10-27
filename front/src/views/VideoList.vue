@@ -12,7 +12,7 @@
                         v-model="page"
                         :total-rows="total"
                         :per-page="perPage"
-                        first-number
+                        @change="changePage"
                 ></b-pagination>
             </b-row>
         </b-container>
@@ -22,36 +22,49 @@
 
 <script>
   import ContentItem from "../components/ContentItem";
-  import {getVideoList} from "../apis/videoList";
+  import {getVideoList} from "../apis/video";
+  // import merge from 'webpack-merge'
+
 
   export default {
     name: "VideoList",
     components: {ContentItem},
     data() {
       return {
-        page: 1,
+        page: null,
         total: 12,
         perPage: 36,
         videos: []
       }
     },
     methods: {
-      async getList() {
+      getList() {
         const type_en = this.$route.query.type_en
-        const data = await getVideoList({type_en, page: this.page, per_page: this.perPage})
-        this.total = data.total
-        this.videos = data.data
+        getVideoList({type_en, page: this.page, per_page: this.perPage}).then(data => {
+          this.total = data.total
+          this.videos = data.data
+        })
         scroll(0,0)
-      }
-    },
-    watch: {
-      page() {
+      },
+      changePage(value) {
+        console.log('-----------', value);
+        if (value != this.$route.query.page) {
+          this.page = Number(value)
+          console.log(this.page)
+          let query = this.$route.query
+          let newQuery = JSON.parse(JSON.stringify(query));
+          newQuery.page = this.page
+          console.log(query);
+          let path = this.$router.history.current.path;
+          this.$router.push({path, query:newQuery})
+        }
         this.getList()
       }
     },
-    async mounted() {
+    mounted() {
       document.title = this.$route.query.type_name
-      await this.getList()
+      this.page = Number(this.$route.query.page || 1)
+      this.getList()
     }
 
   }
