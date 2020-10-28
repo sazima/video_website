@@ -3,6 +3,7 @@ import tornado.web
 from tornado_request_mapping import request_mapping, Route
 
 from handlers.index_handler import IndexHandler
+from handlers.vod_handler import VodHandler
 
 
 @request_mapping("/test")
@@ -17,6 +18,7 @@ def register_handler(app):
     route = Route(app)
     route.register(MainHandler)
     route.register(IndexHandler)
+    route.register(VodHandler)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 from typing_extensions import TypedDict
 
 
-class VodType(TypedDict, total=False):
+class MacType(TypedDict, total=False):
     type_id: int
     type_name: str
     type_en: str

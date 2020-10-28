@@ -5,18 +5,19 @@ from tornado_request_mapping import request_mapping
 
 from dao.type_dao import TypeDao
 from dao.vod_dao import VodDao
+from utils.base_handler import BaseHandler
 from utils.response import Response
 
 
 @request_mapping('/api/index')
-class IndexHandler(tornado.web.RequestHandler):
+class IndexHandler(BaseHandler):
 
-    @request_mapping("/index_tree")
+    @request_mapping("/indexTree", 'get')
     async def get_index_tree(self):
         return_list = list()
         parent_types = await TypeDao.get_type_by_pid(0)
         for type_ in parent_types:
-            vod_list = await VodDao.get_vod_by_type_id(type_['type_id'])
+            vod_list = await VodDao.get_index_vod_by_type_id(type_['type_id'], 6)
             return_list.append({
                 'type_id': type_.get('type_id'),
                 'type_name': type_.get('type_name'),
