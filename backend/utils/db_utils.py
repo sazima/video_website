@@ -3,7 +3,7 @@ from inspect import getcallargs
 from typing import Callable, List
 
 import aiomysql
-from aiomysql import Pool, Connection, Cursor, DictCursor
+from aiomysql import Pool, Cursor, DictCursor
 
 from config import Config
 
@@ -34,20 +34,23 @@ class DBUtils:
                 async with (await cls._get_pool()).acquire() as conn:
                     async with conn.cursor() as cur:
                         cur: Cursor
-                        await cur.execute(sql, call_args)
+                        try:
+                            await cur.execute(sql, call_args)
+                        except Exception:
+                            print(cur._last_executed)
+                            raise
+
                         if issubclass(return_type, dict):  # 返回字典
                             result = await cur.fetchone()
-                            print(cur._last_executed)
                             return result
-                        elif return_type.__origin__ == List:  # 返回字典列表
+                        elif hasattr(return_type, '__origin__') and return_type.__origin__ == List:  # 返回字典列表
                             if len(return_type.__args__) == 1 and issubclass(return_type.__args__[0], dict):
                                 result = await cur.fetchall()
                             else:
                                 raise
-                            print(cur._last_executed)
                             return result
                         elif return_type in (int, str, float):  # 返回一个值
-                            for k, v in await cur.fetchone():
+                            for k, v in (await cur.fetchone()).items():
                                 return v
 
             return inner

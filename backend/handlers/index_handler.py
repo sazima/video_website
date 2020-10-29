@@ -1,6 +1,3 @@
-from typing import Optional, Awaitable
-
-import tornado.web
 from tornado_request_mapping import request_mapping
 
 from dao.type_dao import TypeDao
@@ -25,4 +22,4 @@ class IndexHandler(BaseHandler):
                 'type_sort': type_.get('type_sort'),
                 'videos': vod_list
             })
-        self.write(Response(return_list).to_dict())
+        self.send_response(Response(return_list))
