@@ -13,7 +13,7 @@ class Url(TypedDict):
     links: List[Link]
 
 
-class VodDetailVo(TypedDict):
+class VideoDetailVo(TypedDict):
     vod_id: int
     vod_name: str
     urls: List[Url]

@@ -1,7 +1,7 @@
 <template>
     <div class="home">
-        <slide-image></slide-image>
-        <b-container :fluid='true'>
+        <slide-image :items="brand" v-if="false"></slide-image>
+        <b-container :fluid='true' style="margin-top: 40px">
             <b-row align-h="center">
                 <b-col cols="12" md="10">
                     <content-item
@@ -26,13 +26,16 @@
     components: {SlideImage, ContentItem},
     data() {
       return {
-        typeItems: []
+        typeItems: [],
+        brand: []
       }
     },
     async mounted() {
       document.title = '电影网站'
       let indexTree = await getIndexTree()
-      for (let typeItem of indexTree) {
+      this.brand = indexTree.brand
+      let type_with_video_list = indexTree.type_with_video_list
+      for (let typeItem of type_with_video_list) {
         this.typeItems.push({
           type_en: typeItem.type_en,
           type_name: typeItem.type_name,

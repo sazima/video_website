@@ -33,7 +33,7 @@
       return {
         page: null,
         total: 12,
-        perPage: 36,
+        perPage: 48,
         videos: []
       }
     },
@@ -47,7 +47,6 @@
         scroll(0,0)
       },
       changePage(value) {
-        console.log('-----------', value);
         if (value != this.$route.query.page) {
           this.page = Number(value)
           console.log(this.page)

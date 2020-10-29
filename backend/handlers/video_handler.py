@@ -7,12 +7,12 @@ from dao.type_dao import TypeDao
 from dao.vod_dao import VodDao
 from utils.base_handler import BaseHandler
 from utils.response import Response, NotFoundResponse
-from vo.vod_detail_vo import Url, VodDetailVo
-from vo.vod_list_vo import VodListVo
+from vo.video_detail_vo import Url, VideoDetailVo
+from vo.video_list_vo import VodListVo
 
 
 @request_mapping("/api/video")
-class VodHandler(BaseHandler):
+class VideoHandler(BaseHandler):
 
     @request_mapping('/get_list', 'get')
     async def get_list(self):
@@ -23,7 +23,7 @@ class VodHandler(BaseHandler):
         type_by_en = await TypeDao.get_by_type_en(type_en)
         if not type_by_en:
             return self.send_response(NotFoundResponse())
-        vod_list = await VodDao.get_vod_by_type_id(type_by_en.get('type_id'), start, per_page)
+        vod_list = await VodDao.get_video_by_type_id(type_by_en.get('type_id'), start, per_page)
         return_list = list()  # type: List[VodListVo]
         for vod in vod_list:
             return_list.append({
@@ -44,7 +44,7 @@ class VodHandler(BaseHandler):
         if not vod_id:
             self.send_response(NotFoundResponse())
         vod = await VodDao.get_by_vod_id(int(vod_id))
-        return_dict = {  # type: VodDetailVo
+        return_dict = {  # type: VideoDetailVo
             'vod_id': vod_id,
             'vod_name': vod['vod_name'],
             'urls': self._parse_vod_play_url(vod['vod_play_url'])
@@ -75,3 +75,4 @@ class VodHandler(BaseHandler):
                 'links': links
             })
         return play_group_links_list
+

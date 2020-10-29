@@ -29,7 +29,7 @@ class DBUtils:
                     raise
                 call_args = getcallargs(f, cls, *args, **kwargs)  # type: dict
                 call_args.pop('cls')
-                if 'kwargs' is call_args:
+                if 'kwargs' in call_args:
                     call_args.update(call_args.pop('kwargs'))
                 async with (await cls._get_pool()).acquire() as conn:
                     async with conn.cursor() as cur:
@@ -37,9 +37,9 @@ class DBUtils:
                         try:
                             await cur.execute(sql, call_args)
                         except Exception:
-                            print(cur._last_executed)
                             raise
-
+                        finally:
+                            print(cur._last_executed)
                         if issubclass(return_type, dict):  # 返回字典
                             result = await cur.fetchone()
                             return result
@@ -52,7 +52,6 @@ class DBUtils:
                         elif return_type in (int, str, float):  # 返回一个值
                             for k, v in (await cur.fetchone()).items():
                                 return v
-
             return inner
 
         return func
