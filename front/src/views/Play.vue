@@ -1,6 +1,11 @@
 <template>
     <div>
         <b-container :fluid='true' style="margin-top: 50px">
+          <b-row align-h="center">
+            <b-col cols="12" md="10">
+              <b-alert show variant="info">{{videoInfo.vod_name}} -- {{name}}</b-alert>
+            </b-col>
+          </b-row>
             <b-row align-h="center">
                 <b-col cols="12" md="10">
                     <video id="vid1" ref="videoPlayer" class="video-js" style="margin-top: 40px" controls >
@@ -12,8 +17,8 @@
                 <b-col cols="12" md="10">
                 <b-card >
                     <b-tabs card style="background-color: #fff">
-                        <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name" active>
-                            <b-button v-for="(link, index) in url.links" :key="index" @click="playUrl(link.link)" variant="outline-primary">{{link.name}}</b-button>
+                        <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name" ref="tab" :active="false">
+                            <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link)" variant="outline-primary">{{link.name}}</b-button>
                         </b-tab>
                     </b-tabs>
                 </b-card>
@@ -34,7 +39,8 @@
         player: null,
         src: '',
         vod_id: '',
-        videoInfo: {}
+        videoInfo: {},
+        name: ''
       };
     },
     methods: {
@@ -53,13 +59,14 @@
         };
         this.player = this.$video(this.$refs.videoPlayer, options)
       },
-      playUrl(url) {
-        this.src = url
+      startPlay(link) {
+        this.src = link.link
+        this.name = link.name
+        debugger
         if (!this.player) {
           this.createPlayer()
         } else {
-          console.log(url);
-          this.player.src(url)
+          this.player.src(link.url)
           this.player.load()
           this.player.play()
         }
@@ -69,7 +76,9 @@
       this.vod_id = this.$route.query.vod_id
         getVideoById(this.vod_id).then(data => {
           this.videoInfo = data
-          this.playUrl(this.videoInfo.urls[0].links[0].link)
+          this.startPlay(this.videoInfo.urls[0].links[0])
+          // this.name = this.videoInfo.urls[0].links[0].name
+          // this.$refs.tab[0]
         })
     },
     beforeDestroy() {
