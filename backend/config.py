@@ -3,4 +3,9 @@ class Config:
     db_port = 3306
     db_user = 'root'
     db_password = 'root'
-    db_name = 'test'
+    db_name = 'video'
+
+    redis_host = '127.0.0.1'
+    redis_port = 6379
+    redis_db = 3
+    redis_prefix = 'video_'

@@ -16,4 +16,6 @@ class Url(TypedDict):
 class VideoDetailVo(TypedDict):
     vod_id: int
     vod_name: str
+    vod_pic: str
+    vod_blurb: str
     urls: List[Url]

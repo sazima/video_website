@@ -6,3 +6,4 @@ class TypeVo(TypedDict):
     type_name: str
     type_en: str
     type_sort: int
+    type_pid: int

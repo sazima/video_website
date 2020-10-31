@@ -7,6 +7,7 @@ from dao.type_dao import TypeDao
 from dao.vod_dao import VodDao
 from utils.base_handler import BaseHandler
 from utils.entity_utils import EntityUtils
+from utils.redis_cache import RedisCache
 from utils.response import Response, NotFoundResponse
 from vo.type_vo import TypeVo
 from vo.video_detail_vo import Url, VideoDetailVo
@@ -26,7 +27,7 @@ class VideoHandler(BaseHandler):
         type_id = 0
         if type_en:
             type_by_en = await TypeDao.get_by_type_en(type_en)
-            if not type_by_en:
+            if type_by_en:
                 type_id = type_by_en['type_id']
         vod_list = await VodDao.get_by_query(type_id, kw, start, per_page)
         total = await VodDao.count_by_query(type_id, kw)
@@ -42,21 +43,34 @@ class VideoHandler(BaseHandler):
 
     @request_mapping('/get_by_id', 'get')
     async def get_by_id(self):
+
         vod_id = self.get_argument('vod_id')
         if not vod_id:
             self.send_response(NotFoundResponse())
+        key = 'video_by_id::{}'.format(vod_id)
+        response_cache = RedisCache.get(key)
+        if response_cache:
+            return self.send_response(response_cache)
+
         vod = await VodDao.get_by_vod_id(int(vod_id))
-        return_dict = {  # type: VideoDetailVo
-            'vod_id': vod_id,
-            'vod_name': vod['vod_name'],
+        return_dict = EntityUtils.convert(vod, VideoDetailVo)
+        return_dict.update({
             'urls': self._parse_vod_play_url(vod['vod_play_url'])
-        }
-        self.send_response(Response(return_dict))
+        })
+        response = Response(return_dict)
+        RedisCache.set(key, response)
+        self.send_response(response)
 
     @request_mapping("/get_type_list", 'get')
     async def get_type_list(self):
+        key = 'type_list'
+        response_cache = RedisCache.get(key)
+        if response_cache:
+            return self.send_response(response_cache)
         all_type = await TypeDao.get_all_type()
-        self.send_response(Response(EntityUtils.list_convert(all_type, TypeVo)))
+        response = Response(EntityUtils.list_convert(all_type, TypeVo))
+        RedisCache.set(key, response)
+        self.send_response(response)
 
     @staticmethod
     def _parse_vod_play_url(play_url: str) -> List[Url]:

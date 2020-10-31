@@ -9,7 +9,7 @@
             </b-row>
             <b-row align-h="center" style="margin-top: 20px">
                 <b-pagination
-                        v-model="page"
+                        v-model="currentPage"
                         :total-rows="total"
                         :per-page="perPage"
                         @change="changePage"
@@ -31,39 +31,45 @@
     components: {ContentItem},
     data() {
       return {
-        page: null,
-        total: 12,
+        currentPage: null,
+        total: 9999,
         perPage: 48,
+        kw: '',
         videos: []
       }
     },
     methods: {
       getList() {
         const type_en = this.$route.query.type_en
-        getVideoList({type_en, page: this.page, per_page: this.perPage}).then(data => {
+        let page = Number(this.$route.query.page || 1)
+        getVideoList({type_en, kw: this.kw, page: page, per_page: this.perPage}).then(data => {
           this.total = data.total
           this.videos = data.data
+          this.currentPage = page
         })
         scroll(0,0)
       },
       changePage(value) {
-        if (value != this.$route.query.page) {
-          this.page = Number(value)
-          console.log(this.page)
-          let query = this.$route.query
-          let newQuery = JSON.parse(JSON.stringify(query));
-          newQuery.page = this.page
-          console.log(query);
-          let path = this.$router.history.current.path;
-          this.$router.push({path, query:newQuery})
-        }
+        console.log(value);
+        let query = this.$route.query
+        let path = this.$router.history.current.path;
+        let newQuery = JSON.parse(JSON.stringify(query));
+        newQuery.page = value
+        this.$router.push({path, query: newQuery})
+      },
+      init() {
+        document.title = this.$route.query.type_name || '视频网站'
+        this.kw = this.$route.query.kw || ''
         this.getList()
       }
     },
+    watch: {
+      $route() {
+        this.init()
+      }
+    },
     mounted() {
-      document.title = this.$route.query.type_name
-      this.page = Number(this.$route.query.page || 1)
-      this.getList()
+      this.init()
     }
 
   }

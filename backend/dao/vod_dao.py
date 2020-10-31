@@ -16,14 +16,14 @@ class VodDao:
 
     @classmethod
     @Select("select * from mac_vod where 1 = 1") \
-            .and_('type_id = %(type_id)% or type_id_1 = %(type_id)s', lambda type_id: type_id) \
+            .and_('type_id = %(type_id)s or type_id_1 = %(type_id)s', lambda type_id: type_id) \
             .and_("vod_name like CONCAT('%%', %(kw)s, '%%')", lambda kw: kw.strip()) \
             .append_sql("limit %(start)s, %(limit)s")
     async def get_by_query(cls, type_id: int, kw: str, start, limit) -> List[MacVod]: pass
 
     @classmethod
     @Select("select count(0) from mac_vod where 1 = 1") \
-            .and_('type_id = %(type_id)% or type_id_1 = %(type_id)s', lambda type_id: type_id) \
+            .and_('type_id = %(type_id)s or type_id_1 = %(type_id)s', lambda type_id: type_id) \
             .and_("vod_name like CONCAT('%%', %(kw)s, '%%')", lambda kw: kw.strip())
     async def count_by_query(cls, type_id: int, kw: str) -> int: pass
 

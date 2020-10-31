@@ -8,6 +8,7 @@ from dao.vod_dao import VodDao
 from models.mac_vod import MacVod
 from utils.base_handler import BaseHandler
 from utils.entity_utils import EntityUtils
+from utils.redis_cache import RedisCache
 from utils.response import Response
 from vo.type_vo import TypeVo
 
@@ -17,6 +18,10 @@ class IndexHandler(BaseHandler):
 
     @request_mapping("/indexTree", 'get')
     async def get_index_tree(self):
+        key = 'index_tree'
+        response_cache = RedisCache.get(key)
+        if response_cache:
+            return self.send_response(response_cache)
         type_with_video_list = list()
         all_types = await TypeDao.get_all_type()
         brand_video = await VodDao.get_brand_video()
@@ -32,11 +37,13 @@ class IndexHandler(BaseHandler):
                     'type_sort': type_.get('type_sort'),
                     'videos': self._video_model_to_vo(video_by_type)
                 })
-        self.send_response(Response({
+        response = Response({
             'brand': self._video_model_to_vo(brand_video),
             'all_types': all_types_vo,
             'type_with_video_list': type_with_video_list
-        }))
+        })
+        RedisCache.set(key, response)
+        self.send_response(response)
 
     def _video_model_to_vo(self, video_list: List[MacVod]):
         vo_list = list()

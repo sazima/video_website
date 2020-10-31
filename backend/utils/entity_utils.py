@@ -9,7 +9,7 @@ class EntityUtils:
     def convert(source_instance: dict, target_class: Type[T]) -> T:
         target_instance = dict()
         for field_name in target_class.__annotations__.keys():
-            target_instance.setdefault(field_name, source_instance[field_name])
+            target_instance.setdefault(field_name, source_instance.get(field_name))
         return target_instance
 
     @classmethod

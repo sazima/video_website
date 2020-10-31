@@ -1,27 +1,46 @@
 <template>
     <div>
-        <b-container :fluid='true' style="margin-top: 50px">
-          <b-row align-h="center">
-            <b-col cols="12" md="10">
-              <b-alert show variant="info">{{videoInfo.vod_name}} -- {{name}}</b-alert>
-            </b-col>
-          </b-row>
+        <b-container :fluid='true'>
+            <b-row align-h="center" style="margin-top: 89px">
+                <b-col cols="12" md="10">
+                    <b-alert show variant="info">{{videoInfo.vod_name}} -- {{name}}</b-alert>
+                </b-col>
+            </b-row>
             <b-row align-h="center">
                 <b-col cols="12" md="10">
-                    <video id="vid1" ref="videoPlayer" class="video-js" style="margin-top: 40px" controls >
+                    <video id="vid1" ref="videoPlayer" class="video-js" controls>
                         <source type="application/x-mpegURL"/>
                     </video>
                 </b-col>
             </b-row>
             <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
                 <b-col cols="12" md="10">
-                <b-card >
-                    <b-tabs card style="background-color: #fff">
-                        <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name" ref="tab" :active="false">
-                            <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link)" variant="outline-primary">{{link.name}}</b-button>
-                        </b-tab>
-                    </b-tabs>
-                </b-card>
+                    <b-card>
+                        <b-tabs card style="background-color: #fff">
+                            <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name"
+                                   ref="tab" :active="false">
+                                <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link)"
+                                          variant="outline-primary">{{link.name}}
+                                </b-button>
+                            </b-tab>
+                        </b-tabs>
+                    </b-card>
+                </b-col>
+            </b-row>
+            <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
+                <b-col cols="12" md="10">
+                    <b-card>
+                        <b-media>
+                            <template v-slot:aside>
+                                <b-img :src="videoInfo.vod_pic" blank-color="#ccc" width="64" alt="placeholder"></b-img>
+                            </template>
+
+                            <h5 class="mt-0">{{videoInfo.vod_name}}</h5>
+                            <p>
+                               {{videoInfo.vod_blurb}}
+                            </p>
+                        </b-media>
+                    </b-card>
                 </b-col>
             </b-row>
         </b-container>
@@ -62,7 +81,6 @@
       startPlay(link) {
         this.src = link.link
         this.name = link.name
-        debugger
         if (!this.player) {
           this.createPlayer()
         } else {
@@ -74,12 +92,12 @@
     },
     mounted() {
       this.vod_id = this.$route.query.vod_id
-        getVideoById(this.vod_id).then(data => {
-          this.videoInfo = data
-          this.startPlay(this.videoInfo.urls[0].links[0])
-          // this.name = this.videoInfo.urls[0].links[0].name
-          // this.$refs.tab[0]
-        })
+      getVideoById(this.vod_id).then(data => {
+        this.videoInfo = data
+        this.startPlay(this.videoInfo.urls[0].links[0])
+        // this.name = this.videoInfo.urls[0].links[0].name
+        // this.$refs.tab[0]
+      })
     },
     beforeDestroy() {
       if (this.player) {
