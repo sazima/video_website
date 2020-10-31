@@ -30,13 +30,22 @@
     props: {showMoreButton: Boolean, items: Array, title: String, type_en: String, videos: Array},
     data() {
       return {
-        img_width: 196
+        img_width: 196,
+        intervalTask: []
+
       }
     },
     mounted() {
-      setInterval(() => {
+      let task  = setInterval(() => {
         this.img_width = this.$refs.card[0].clientWidth
       }, 1000)
+      this.intervalTask.push(task)
+    },
+    beforeDestroy() {
+      for (let task of this.intervalTask) {
+        window.clearInterval(task);
+      }
+      this.intervalTask = []
     }
   }
 </script>
