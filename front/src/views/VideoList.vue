@@ -23,7 +23,7 @@
 <script>
   import ContentItem from "../components/ContentItem";
   import {getVideoList} from "../apis/video";
-  // import merge from 'webpack-merge'
+  import {isMobile} from "../utils/utils";
 
 
   export default {
@@ -58,6 +58,9 @@
         this.$router.push({path, query: newQuery})
       },
       init() {
+        if (isMobile()) {
+          this.perPage = 6
+        }
         document.title = this.$route.query.type_name || '视频网站'
         this.kw = this.$route.query.kw || ''
         this.getList()

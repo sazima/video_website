@@ -11,6 +11,9 @@
                     <video id="vid1" ref="videoPlayer" class="video-js" controls>
                         <source type="application/x-mpegURL"/>
                     </video>
+                    <tanmu  ref="tanmu" :height="danmuContainerHeight" ></tanmu>
+                    <b-input v-model="inputTanmu"></b-input>
+                    <button @click="addTanmu">add</button>
                 </b-col>
             </b-row>
             <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
@@ -48,16 +51,24 @@
 
 <script>
   import {getVideoById} from "../apis/video";
+  import tanmu from '../components/tanmu'
 
   export default {
     name: "Play",
+    components: {tanmu},
     data() {
       return {
         player: null,
         src: '',
         vod_id: '',
+        inputTanmu: '',
         videoInfo: {},
-        name: ''
+        privousTanmuSecond: 0,
+        danmuContainerHeight: 90,
+        name: '',
+        tanmuList: {
+          1: [{'text': '发送一条弹幕试试吧'}, {'text': '弹幕有你更精彩'}]
+        }
       };
     },
     methods: {
@@ -75,6 +86,7 @@
           }],
         };
         this.player = this.$video(this.$refs.videoPlayer, options)
+        this.danmuContainerHeight = this.$refs.videoPlayer.clientHeight
       },
       startPlay(link) {
         this.src = link.link
@@ -87,6 +99,27 @@
           this.player.load()
           this.player.play()
         }
+        // 播放条事件
+        this.$refs.videoPlayer.addEventListener('timeupdate', (event) => {
+          console.log(event.srcElement.currentTime)
+          const currentTime = parseInt(event.srcElement.currentTime)
+          if (currentTime === this.privousTanmuSecond) {
+            return
+          }
+          this.privousTanmuSecond = currentTime
+          let currentTanmuList = this.tanmuList[currentTime]
+          if (!currentTanmuList) {
+            return
+          }
+          for (let tanData of currentTanmuList) {
+            this.$refs.tanmu.add(tanData)
+          }
+        })
+      },
+      addTanmu() {
+        this.$refs.tanmu.add({
+          text: this.inputTanmu
+        })
       }
     },
     mounted() {
@@ -95,9 +128,8 @@
         this.videoInfo = data
         this.videoInfo.vod_content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.vod_content.replace(/\s*/g,"").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
         this.startPlay(this.videoInfo.urls[0].links[0])
-        // this.name = this.videoInfo.urls[0].links[0].name
-        // this.$refs.tab[0]
       })
+
     },
     beforeDestroy() {
       if (this.player) {

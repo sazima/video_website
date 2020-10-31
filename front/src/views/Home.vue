@@ -21,6 +21,8 @@
   import ContentItem from "../components/ContentItem";
   import {getIndexTree} from "../apis/index"
 
+  import {isMobile} from "../utils/utils";
+
   export default {
     name: 'Home',
     components: {SlideImage, ContentItem},
@@ -39,7 +41,7 @@
         this.typeItems.push({
           type_en: typeItem.type_en,
           type_name: typeItem.type_name,
-          videos: typeItem.videos
+          videos: isMobile() ? typeItem.videos.slice(0, 6) : typeItem.videos
         })
       }
       console.log(this.typeItems);
