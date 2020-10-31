@@ -18,7 +18,7 @@ class VodDao:
     @Select("select * from mac_vod where 1 = 1") \
             .and_('type_id = %(type_id)s or type_id_1 = %(type_id)s', lambda type_id: type_id) \
             .and_("vod_name like CONCAT('%%', %(kw)s, '%%')", lambda kw: kw.strip()) \
-            .append_sql("limit %(start)s, %(limit)s")
+            .append_sql("order by vod_id desc limit %(start)s, %(limit)s")
     async def get_by_query(cls, type_id: int, kw: str, start, limit) -> List[MacVod]: pass
 
     @classmethod
