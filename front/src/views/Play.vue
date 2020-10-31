@@ -36,9 +36,7 @@
                             </template>
 
                             <h5 class="mt-0">{{videoInfo.vod_name}}</h5>
-                            <p>
-                               {{videoInfo.vod_blurb}}
-                            </p>
+                            <p v-html="videoInfo.vod_content"></p>
                         </b-media>
                     </b-card>
                 </b-col>
@@ -81,6 +79,7 @@
       startPlay(link) {
         this.src = link.link
         this.name = link.name
+        document.title = this.videoInfo.vod_name + this.name
         if (!this.player) {
           this.createPlayer()
         } else {
@@ -94,6 +93,7 @@
       this.vod_id = this.$route.query.vod_id
       getVideoById(this.vod_id).then(data => {
         this.videoInfo = data
+        this.videoInfo.vod_content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.vod_content.replace(/\s*/g,"").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
         this.startPlay(this.videoInfo.urls[0].links[0])
         // this.name = this.videoInfo.urls[0].links[0].name
         // this.$refs.tab[0]

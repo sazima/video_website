@@ -18,4 +18,5 @@ class VideoDetailVo(TypedDict):
     vod_name: str
     vod_pic: str
     vod_blurb: str
+    vod_content: str
     urls: List[Url]
