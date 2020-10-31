@@ -46,7 +46,7 @@ class VideoHandler(BaseHandler):
 
         vod_id = self.get_argument('vod_id')
         if not vod_id:
-            self.send_response(NotFoundResponse())
+            return self.send_response(NotFoundResponse())
         key = 'video_by_id::{}'.format(vod_id)
         response_cache = RedisCache.get(key)
         if response_cache:
