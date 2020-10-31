@@ -28,6 +28,10 @@ class NotFoundResponse(Response):
     msg = '不存在'
 
 
+class FuckYouResponse(Response):
+    code = 405
+    msg = 'Fuck you !!!!'
+
 class _DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime):

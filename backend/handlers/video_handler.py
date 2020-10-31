@@ -8,7 +8,7 @@ from dao.vod_dao import VodDao
 from utils.base_handler import BaseHandler
 from utils.entity_utils import EntityUtils
 from utils.redis_cache import RedisCache
-from utils.response import Response, NotFoundResponse
+from utils.response import Response, NotFoundResponse, FuckYouResponse
 from vo.type_vo import TypeVo
 from vo.video_detail_vo import Url, VideoDetailVo
 from vo.video_list_vo import VodListVo
@@ -22,6 +22,8 @@ class VideoHandler(BaseHandler):
         type_en = self.get_argument('type_en', '')
         page = int(self.get_argument('page') or 1)
         per_page = int(self.get_argument('per_page') or 36)
+        if per_page > 60:
+            return self.send_response(FuckYouResponse())
         kw = self.get_argument('kw', '')
         start = (page - 1) * per_page
         type_id = 0
