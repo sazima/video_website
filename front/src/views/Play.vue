@@ -7,7 +7,7 @@
                 </b-col>
             </b-row>
             <b-row align-h="center">
-                <b-col cols="12" md="10">
+                <b-col cols="12" md="10" ref="videoCol">
                     <video id="vid1" ref="videoPlayer" class="video-js" controls>
                         <source type="application/x-mpegURL"/>
                     </video>
@@ -41,7 +41,7 @@
                     <b-card>
                         <b-media>
                             <template v-slot:aside>
-                                <b-img :src="videoInfo.vod_pic" blank-color="#ccc" width="64" alt="placeholder"></b-img>
+                                <b-img :src="videoInfo.vod_pic" blank-color="#ccc" width="64" height="90" alt="placeholder" ></b-img>
                             </template>
 
                             <h5 class="mt-0">{{videoInfo.vod_name}}</h5>
@@ -58,6 +58,7 @@
 <script>
 import {addTanmu, getTanmu, getVideoById} from "../apis/video";
   import tanmu from '../components/tanmu'
+import {requestFullScreen, clearEventListener} from "@/utils/utils";
 
   export default {
     name: "Play",
@@ -94,9 +95,18 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
           }],
         };
         this.player = this.$video(this.$refs.videoPlayer, options)
+
+        this.player.ready(() => {
+          this.player.tech_.off('dblclick');
+          this.player.on('dblclick', () => {
+            this.switchFull()
+          })
+         this.replaceFullScreenButton()
+          // // 播放条事件
+          this.player.on("timeupdate", this.timeUpdate);
+        })
         this.danmuContainerHeight = this.$refs.videoPlayer.clientHeight
         this.danmuContainerWidth = this.$refs.videoPlayer.clientWidth
-        // this.danmuContainerWidth = document.body.clientWidth
       },
       startPlay(link) {
         this.src = link.link
@@ -109,20 +119,18 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
           this.player.load()
           this.player.play()
         }
-        // 播放条事件
-        this.$refs.videoPlayer.addEventListener('timeupdate', this.timeUpdate)
         this.initTanmu()
       },
       // 根据播放条发送弹幕
-      timeUpdate(event) {
-        if (event.srcElement.currentTime === 0) {
+      timeUpdate() {
+        const time = this.player.cache_.currentTime
+        if (time === 0) {
           this.canSubmitTanmu = false
           return
         }
         this.canSubmitTanmu = true
         let previouseTime = this.currentPlayerTime
-        this.currentPlayerTime = event.srcElement.currentTime
-        console.log('playtime update: ', event.srcElement.currentTime, 'previou time ', previouseTime)
+        this.currentPlayerTime = time
         if (parseInt(previouseTime) === parseInt(this.currentPlayerTime)) {
           return
         }
@@ -132,6 +140,7 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
         }
         for (let tanData of currentTanmuList) {
           setTimeout(() => {
+            console.log('发送弹幕, ', tanData)
             this.$refs.tanmu.add(tanData)
           }, (tanData.current_time - this.currentPlayerTime) * 1000)
         }
@@ -145,7 +154,7 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
         addTanmu({
           vod_id: this.vod_id,
           play_url: this.src,
-          current_time: this.$refs.videoPlayer.currentTime,
+          current_time: this.player.cache_.currentTime,
           content: this.inputTanmu
         })
         this.$refs.tanmu.add({
@@ -165,6 +174,7 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
         }, 1000)
       },
       initTanmu() {
+        this.$refs.tanmu.removeAll()
         this.inputTanmu = ''
         this.tanmuList = {1: [{'content': '发送一条弹幕试试吧'}, {'content': '弹幕有你更精彩'}]}
         this.currentPlayerTime = -1
@@ -178,6 +188,21 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
         }).catch(err => {
           console.log('获取弹幕失败', err)
         })
+      },
+      switchFull() {
+        requestFullScreen(this.$refs.videoCol)
+      },
+      replaceFullScreenButton() {
+        // 修改全屏按钮, 使用自定义的全屏功能
+        let fullButton = document.getElementsByClassName("vjs-fullscreen-control")[0]
+        try {
+          fullButton = clearEventListener(fullButton)
+        } catch (err) {
+          console.log(err);
+        }
+        fullButton.onclick = () => {
+          this.switchFull()
+        }
       }
     },
     mounted() {

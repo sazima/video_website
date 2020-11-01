@@ -23,6 +23,7 @@
             border-radius: 30px;
             position: absolute;
             white-space: nowrap;
+            z-index: 2147483647;
 
             /*&.move {*/
             /*    transition: transform 4.5s linear;*/
@@ -54,11 +55,12 @@
         default: 90,
         type: Number,
       }
-    },
+    }
   })
 
 
   class Barrage {
+
 
     add(data) {
       this.createDom(data)
@@ -73,7 +75,6 @@
       div.classList.add('barrageItem');
       wrapperItem.appendChild(div);
       const divH = div.clientHeight * (Math.floor(Math.random() * this.line));
-      console.log('-----------------', divH)
       div.style.width = `${div.clientWidth}px`;
       div.style.right = 0
       div.style.webkitTransform = `translate3d(${div.clientWidth}px, ${divH}px, 0)`;
@@ -85,6 +86,10 @@
       setTimeout(() => {
         wrapperItem.removeChild(div)
       }, (this.lastTime) * 1000)
+    }
+    removeAll() {
+      const wrapperItem = this.$refs.barrageWrapper;
+      wrapperItem.innerText = ''
     }
   }
 

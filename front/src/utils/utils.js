@@ -18,4 +18,24 @@ function isEmptyObject(data) {
   }
   return true
 }
-export {isMobile, isEmptyObject}
+function requestFullScreen(ele) {
+  if (ele.innerHTML) {
+    if (ele.requestFullscreen) {
+      ele.requestFullscreen();
+    } else if (ele.mozRequestFullScreen) {
+      ele.mozRequestFullScreen();
+    } else if (ele.webkitRequestFullScreen) {
+      ele.webkitRequestFullScreen();
+    }
+  }
+}
+
+function clearEventListener(element) {
+  const clonedElement = element.cloneNode(true);
+  element.replaceWith(clonedElement);
+  return clonedElement;
+}
+
+
+
+export {isMobile, isEmptyObject, requestFullScreen, clearEventListener}
