@@ -3,6 +3,7 @@ import tornado.web
 from tornado_request_mapping import Route
 
 from handlers.index_handler import IndexHandler
+from handlers.tanmu_handler import TanmuHandler
 from handlers.video_handler import VideoHandler
 
 
@@ -10,6 +11,7 @@ def register_handler(app):
     route = Route(app)
     route.register(IndexHandler)
     route.register(VideoHandler)
+    route.register(TanmuHandler)
 
 
 if __name__ == '__main__':

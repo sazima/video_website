@@ -9,9 +9,10 @@ from config import Config
 
 class Base:
 
-    def __init__(self):
+    def __init__(self, sql: str):
+        self.sql = sql
         self._append_statements = list()  # type: List[_AppendStatement]
-       
+
     @classmethod
     async def _get_pool(cls) -> Pool:
         return await aiomysql.create_pool(host=Config.db_host,
@@ -31,6 +32,25 @@ class Base:
     def or_(self, sql, when=None):
         return self.append_sql(sql, when, 'OR')
 
+    def _get_sql_and_args(self, *args, **kwargs):
+        call_args = getcallargs(self.func, '', *args, **kwargs)  # type: dict
+        call_args.pop('cls', None)
+        if 'kwargs' in call_args:
+            call_args.update(call_args.pop('kwargs'))
+        sql = self.sql
+        for append_statement in self._append_statements:
+            when_args = {k: call_args.get(k) for k in append_statement.when_arg_names}
+            if append_statement.when is None or append_statement.when(**when_args):
+                sql += ' ' + append_statement.operator + ' ' + append_statement.statement
+        return sql, call_args
+
+    def __call__(self, func):
+        self.func = func
+        return self.run_sql
+
+    async def run_sql(self, *args, **kwargs):
+        raise NotImplemented
+
 
 class _AppendStatement:
     def __init__(self, statement: str, when: callable, operator: str):
@@ -44,34 +64,15 @@ class _AppendStatement:
 
 
 class Select(Base):
-    def __init__(self, sql: str):
-        self.sql = sql
-        super(Select, self).__init__()
 
-    def __call__(self, func):
-        self.func = func
-        return self.call_select
-
-    def _get_sql_and_args(self, *args, **kwargs):
-        call_args = getcallargs(self.func, '', *args, **kwargs)  # type: dict
-        call_args.pop('cls', None)
-        if 'kwargs' in call_args:
-            call_args.update(call_args.pop('kwargs'))
-        sql = self.sql
-        for append_statement in self._append_statements:
-            when_args = {k: call_args.get(k) for k in append_statement.when_arg_names}
-            if append_statement.when is None or append_statement.when(**when_args):
-                sql += ' ' + append_statement.operator + ' ' + append_statement.statement
-        return sql, call_args
-
-    async def call_select(self, *args, **kwargs):
+    async def run_sql(self, *args, **kwargs):
         return_type = self.func.__annotations__.get('return')
         if not return_type:
-            raise
+            raise Exception('no return type')
         sql, call_args = self._get_sql_and_args(*args, **kwargs)
         async with (await self._get_pool()).acquire() as conn:
             async with conn.cursor() as cur:
-                cur: Cursor
+                cur: DictCursor
                 await cur.execute(sql, call_args)
                 print(cur._last_executed)
                 if isclass(return_type) and issubclass(return_type, dict):  # 返回字典
@@ -90,3 +91,29 @@ class Select(Base):
                     for k, v in result.items():
                         return v
                 raise Exception('todo')
+
+
+class Update(Base):
+    async def run_sql(self, *args, **kwargs):
+        sql, call_args = self._get_sql_and_args(*args, **kwargs)
+        async with (await self._get_pool()).acquire() as conn:
+            async with conn.cursor() as cur:
+                cur: DictCursor
+                await cur.execute(sql, call_args)
+                print(cur._last_executed)
+                await conn.commit()
+
+
+class Insert(Base):
+
+    async def run_sql(self, *args, **kwargs):
+        sql, call_args = self._get_sql_and_args(*args, **kwargs)
+        async with (await self._get_pool()).acquire() as conn:
+            async with conn.cursor() as cur:
+                cur: DictCursor
+                try:
+                    result = await cur.execute(sql, call_args)
+                finally:
+                    print(cur._last_executed)
+                await conn.commit()
+                return cur.lastrowid

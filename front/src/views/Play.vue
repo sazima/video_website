@@ -11,12 +11,18 @@
                     <video id="vid1" ref="videoPlayer" class="video-js" controls>
                         <source type="application/x-mpegURL"/>
                     </video>
-                    <tanmu  ref="tanmu" :height="danmuContainerHeight" ></tanmu>
-                    <b-input v-model="inputTanmu"></b-input>
-                    <button @click="addTanmu">add</button>
+                    <tanmu ref="tanmu" v-show='showTanmu' :height="danmuContainerHeight" :width="danmuContainerWidth" ></tanmu>
                 </b-col>
             </b-row>
-            <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
+          <b-row align-h="center" style="margin-top: 20px">
+            <b-col cols="9" md="7">
+              <b-input placeholder="发送弹幕, 请注意弹幕礼仪" v-model="inputTanmu" v-show="currentPlayerTime !== 0"></b-input>
+            </b-col>
+            <b-col cols="3" >
+              <b-button variant="outline-primary" @click="submitTanmu"  :disabled="!submitStatus">发送弹幕</b-button>
+            </b-col>
+          </b-row>
+          <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
                 <b-col cols="12" md="10">
                     <b-card>
                         <b-tabs card style="background-color: #fff">
@@ -50,7 +56,7 @@
 </template>
 
 <script>
-  import {getVideoById} from "../apis/video";
+import {addTanmu, getTanmu, getVideoById} from "../apis/video";
   import tanmu from '../components/tanmu'
 
   export default {
@@ -62,13 +68,15 @@
         src: '',
         vod_id: '',
         inputTanmu: '',
+        showTanmu: true,
         videoInfo: {},
-        privousTanmuSecond: 0,
+        currentPlayerTime: -1,
         danmuContainerHeight: 90,
+        danmuContainerWidth: 90,
+        submitStatus: true,
+        lastSubmitTime: 0,
         name: '',
-        tanmuList: {
-          1: [{'text': '发送一条弹幕试试吧'}, {'text': '弹幕有你更精彩'}]
-        }
+        tanmuList: { }
       };
     },
     methods: {
@@ -87,6 +95,8 @@
         };
         this.player = this.$video(this.$refs.videoPlayer, options)
         this.danmuContainerHeight = this.$refs.videoPlayer.clientHeight
+        this.danmuContainerWidth = this.$refs.videoPlayer.clientWidth
+        // this.danmuContainerWidth = document.body.clientWidth
       },
       startPlay(link) {
         this.src = link.link
@@ -100,25 +110,60 @@
           this.player.play()
         }
         // 播放条事件
-        this.$refs.videoPlayer.addEventListener('timeupdate', (event) => {
-          console.log(event.srcElement.currentTime)
-          const currentTime = parseInt(event.srcElement.currentTime)
-          if (currentTime === this.privousTanmuSecond) {
-            return
-          }
-          this.privousTanmuSecond = currentTime
-          let currentTanmuList = this.tanmuList[currentTime]
-          if (!currentTanmuList) {
-            return
-          }
-          for (let tanData of currentTanmuList) {
-            this.$refs.tanmu.add(tanData)
-          }
-        })
+        this.$refs.videoPlayer.addEventListener('timeupdate', this.timeUpdate)
+        this.initTanmu()
       },
-      addTanmu() {
+      // 根据播放条发送弹幕
+      timeUpdate(event) {
+        if (event.srcElement.currentTime === 0) {
+          return
+        }
+        let previouseTime = this.currentPlayerTime
+        this.currentPlayerTime = event.srcElement.currentTime
+        console.log('playtime update: ', event.srcElement.currentTime, 'previou time ', previouseTime)
+        if (parseInt(previouseTime) === parseInt(this.currentPlayerTime)) {
+          return
+        }
+        let currentTanmuList = this.tanmuList[parseInt(this.currentPlayerTime)]
+        if (!currentTanmuList) {
+          return
+        }
+        for (let tanData of currentTanmuList) {
+          setTimeout(() => {
+            this.$refs.tanmu.add(tanData)
+          }, (tanData.current_time - this.currentPlayerTime) * 1000)
+        }
+      },
+      submitTanmu() {
+        this.submitStatus = false
+        addTanmu({
+          vod_id: this.vod_id,
+          play_url: this.src,
+          current_time: this.$refs.videoPlayer.currentTime,
+          content: this.inputTanmu
+        }).then(() => {
+          this.submitStatus = true
+        }).catch( () => {
+          this.submitStatus = true
+        })
         this.$refs.tanmu.add({
-          text: this.inputTanmu
+          content: this.inputTanmu
+        })
+        this.inputTanmu = ''
+      },
+      initTanmu() {
+        this.inputTanmu = ''
+        this.tanmuList = {1: [{'content': '发送一条弹幕试试吧'}, {'content': '弹幕有你更精彩'}]}
+        this.currentPlayerTime = -1
+        this.showTanmu = true
+        getTanmu({
+          vod_id: this.vod_id,
+          play_url: this.src
+        }).then(data => {
+          console.log('获取弹幕成功', data)
+          this.tanmuList = data
+        }).catch(err => {
+          console.log('获取弹幕失败', err)
         })
       }
     },
@@ -129,7 +174,6 @@
         this.videoInfo.vod_content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.vod_content.replace(/\s*/g,"").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
         this.startPlay(this.videoInfo.urls[0].links[0])
       })
-
     },
     beforeDestroy() {
       if (this.player) {

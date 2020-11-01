@@ -1,5 +1,5 @@
 <template>
-    <div id="barrageWrapper" ref="barrageWrapper" style="height: 1px">
+    <div id="barrageWrapper" ref="barrageWrapper" :style="`height: 1; width: ${width}px`">
 
     </div>
 </template>
@@ -8,9 +8,9 @@
 
         position: absolute;
         top: 0;
-        left: 0;
+        //left: 0;
 
-        .barrageItem {
+      .barrageItem {
             width: auto;
             text-align: center;
             height: 30px;
@@ -33,7 +33,7 @@
 <script>
   import Component from 'vue-class-component';
 
-  const bodyWidth = window.document.body.clientWidth;
+  // const bodyWidth = window.document.body.clientWidth;
 
   @Component({
     props: {
@@ -47,6 +47,10 @@
         type: Number,
       },
       height: {
+        default: 90,
+        type: Number,
+      },
+      width: {
         default: 90,
         type: Number,
       }
@@ -65,20 +69,22 @@
       }
       const wrapperItem = this.$refs.barrageWrapper;
       const div = window.document.createElement('div');
-      div.innerHTML = data.text;
+      div.innerText = data.content;
       div.classList.add('barrageItem');
       wrapperItem.appendChild(div);
       const divH = div.clientHeight * (Math.floor(Math.random() * this.line));
       console.log('-----------------', divH)
       div.style.width = `${div.clientWidth}px`;
-      div.style.webkitTransform = `translate3d(${window.parseInt((bodyWidth * 100) / div.clientWidth)}%, ${divH}px, 0)`;
+      div.style.right = 0
+      div.style.webkitTransform = `translate3d(${div.clientWidth}px, ${divH}px, 0)`;
       setTimeout(() => {
-        div.style.webkitTransform = `translate3d(-100%, ${divH}px, 0)`;
+        console.log(div.style.width)
+        div.style.webkitTransform = `translate3d(${-this.width - div.clientWidth}px, ${divH}px, 0)`;
         div.style.transition = `transform ${this.lastTime}s linear`
       }, 10);
       setTimeout(() => {
         wrapperItem.removeChild(div)
-      }, this.lastTime * 1000)
+      }, (this.lastTime) * 1000)
     }
   }
 

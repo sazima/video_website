@@ -9,4 +9,13 @@ function isMobile() {
   return false;
 
 }
-export {isMobile}
+function isEmptyObject(data) {
+  if (!data) {
+    return true
+  }
+  for (let i in data) {
+    return false
+  }
+  return true
+}
+export {isMobile, isEmptyObject}

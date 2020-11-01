@@ -1,7 +1,7 @@
 from typing import List
 
 from models.mac_type import MacType
-from utils.db_utils import Select
+from utils.db_utils import Select, Update
 
 
 class TypeDao:
@@ -20,8 +20,7 @@ class TypeDao:
     async def get_all_type(cls) -> List[MacType]: pass
 
     @classmethod
-    @Select('select * from mac_type where 1 = 1 ') \
-            .and_("type_en = %(type_en)s", lambda type_en: type_en.strip() != '')
+    @Update("update test set name = %(type_en)%")
     # .and_('type_id = %(type_id)s', lambda type_id: type_id.split() != '')
     def test(cls, type_en) -> List[dict]:
         pass

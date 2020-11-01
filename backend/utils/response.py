@@ -32,6 +32,12 @@ class FuckYouResponse(Response):
     code = 405
     msg = 'Fuck you !!!!'
 
+
+class ErrorResponse(Response):
+    code = 406
+    msg = '出错啦 !!!!'
+
+
 class _DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime):

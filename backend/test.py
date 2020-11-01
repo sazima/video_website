@@ -5,7 +5,7 @@ from inspect import getcallargs
 from typing import Callable, List
 
 import aiomysql
-from aiomysql import Pool, DictCursor
+from aiomysql import Pool, DictCursor, Cursor
 from typing_extensions import TypedDict
 
 from config import Config
@@ -133,6 +133,9 @@ class Select(Base):
 @Select("select * from mac_vod limit 1")
 async def get_by_name_id(name, id):
     print('func')
+
+
+
 
 
 if __name__ == '__main__':
