@@ -1,5 +1,7 @@
-python 3.9 required
+- python 3.9 required
 
-demo: https://video1.wktadmin.com)
+- demo: https://video1.wktadmin.com
 
-注: 用到 PEP-614 特性, python3.9以下无法运行
+username: 1 password: 1
+
+- 注: python3.9以下无法运行

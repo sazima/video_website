@@ -6,7 +6,7 @@ from utils.db_utils import Select, Insert
 
 class TanmuDao:
     @classmethod
-    @Select("select * from mac_tanmu where vod_id = %(vod_id)s and play_url = %(play_url)s order by `current_time_int`")
+    @Select("select * from mac_tanmu where vod_id = %(vod_id)s and play_url = %(play_url)s order by `current_time`")
     async def get_by_vod_id_and_play_url(cls, vod_id: int, play_url: str) -> List[Tanmu]:
         pass
 

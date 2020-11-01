@@ -19,7 +19,7 @@
               <b-input placeholder="发送弹幕, 请注意弹幕礼仪" v-model="inputTanmu" v-show="currentPlayerTime !== 0"></b-input>
             </b-col>
             <b-col cols="3" >
-              <b-button variant="outline-primary" @click="submitTanmu"  :disabled="!submitStatus">发送弹幕</b-button>
+              <b-button variant="outline-primary" @click="submitTanmu"  :disabled="!canSubmitTanmu || !inputTanmu">{{sendTanmuButtonText}}</b-button>
             </b-col>
           </b-row>
           <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
@@ -68,13 +68,13 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
         src: '',
         vod_id: '',
         inputTanmu: '',
+        sendTanmuButtonText: '发送弹幕',
         showTanmu: true,
         videoInfo: {},
         currentPlayerTime: -1,
         danmuContainerHeight: 90,
         danmuContainerWidth: 90,
-        submitStatus: true,
-        lastSubmitTime: 0,
+        canSubmitTanmu: false,
         name: '',
         tanmuList: { }
       };
@@ -105,7 +105,7 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
         if (!this.player) {
           this.createPlayer()
         } else {
-          this.player.src(link.url)
+          this.player.src(link.link)
           this.player.load()
           this.player.play()
         }
@@ -116,8 +116,10 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
       // 根据播放条发送弹幕
       timeUpdate(event) {
         if (event.srcElement.currentTime === 0) {
+          this.canSubmitTanmu = false
           return
         }
+        this.canSubmitTanmu = true
         let previouseTime = this.currentPlayerTime
         this.currentPlayerTime = event.srcElement.currentTime
         console.log('playtime update: ', event.srcElement.currentTime, 'previou time ', previouseTime)
@@ -135,21 +137,32 @@ import {addTanmu, getTanmu, getVideoById} from "../apis/video";
         }
       },
       submitTanmu() {
-        this.submitStatus = false
+        // 为空不能发送
+        if (! this.inputTanmu.trim()) {
+          return
+        }
+        this.canSubmitTanmu = false
         addTanmu({
           vod_id: this.vod_id,
           play_url: this.src,
           current_time: this.$refs.videoPlayer.currentTime,
           content: this.inputTanmu
-        }).then(() => {
-          this.submitStatus = true
-        }).catch( () => {
-          this.submitStatus = true
         })
         this.$refs.tanmu.add({
           content: this.inputTanmu
         })
         this.inputTanmu = ''
+        let remainSenconds = 10  // 设置10s间隔, 不能发送太频繁
+        let i  = setInterval(() => {
+          if (remainSenconds <= 0) {
+            this.sendTanmuButtonText = '发送弹幕'
+            this.canSubmitTanmu = true
+            clearInterval(i)
+            return
+          }
+          this.sendTanmuButtonText = `${remainSenconds}s`
+          remainSenconds --
+        }, 1000)
       },
       initTanmu() {
         this.inputTanmu = ''
