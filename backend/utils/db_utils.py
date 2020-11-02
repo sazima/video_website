@@ -1,8 +1,8 @@
 from inspect import getcallargs, signature, isclass
-from typing import List, TypedDict, Dict, Any
+from typing import List, Dict, Any
 
 import aiomysql
-from aiomysql import Pool, Cursor, DictCursor
+from aiomysql import Pool, DictCursor
 
 from config import Config
 

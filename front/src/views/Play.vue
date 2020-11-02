@@ -28,7 +28,7 @@
                         <b-tabs card style="background-color: #fff">
                             <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name"
                                    ref="tab" :active="false">
-                                <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link)"
+                                <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link, url.play_line_name)"
                                           variant="outline-primary">{{link.name}}
                                 </b-button>
                             </b-tab>
@@ -77,6 +77,7 @@ import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
         danmuContainerWidth: 90,
         canSubmitTanmu: false,
         name: '',
+        play_line_name: '',
         tanmuList: { }
       };
     },
@@ -110,9 +111,10 @@ import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
         this.danmuContainerHeight = this.$refs.videoPlayer.clientHeight
         this.danmuContainerWidth = this.$refs.videoPlayer.clientWidth
       },
-      startPlay(link) {
+      startPlay(link, play_line_name) {
         this.src = link.link
         this.name = link.name
+        this.play_line_name = play_line_name
         document.title = this.videoInfo.vod_name + this.name
         if (!this.player) {
           this.createPlayer()
@@ -152,11 +154,14 @@ import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
         if (! this.inputTanmu.trim()) {
           return
         }
+        debugger
         this.canSubmitTanmu = false
         addTanmu({
           vod_id: this.vod_id,
           play_url: this.src,
           current_time: this.player.cache_.currentTime,
+          play_line_name: this.play_line_name,
+          play_name: this.name,
           content: this.inputTanmu
         })
         this.$refs.tanmu.add({
@@ -183,6 +188,8 @@ import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
         this.showTanmu = true
         getTanmu({
           vod_id: this.vod_id,
+          play_line_name: this.play_line_name,
+          play_name: this.name,
           play_url: this.src
         }).then(data => {
           console.log('获取弹幕成功', data)
@@ -212,7 +219,7 @@ import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
       getVideoById(this.vod_id).then(data => {
         this.videoInfo = data
         this.videoInfo.vod_content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.vod_content.replace(/\s*/g,"").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
-        this.startPlay(this.videoInfo.urls[0].links[0])
+        this.startPlay(this.videoInfo.urls[0].links[0], this.videoInfo.urls[0].play_line_name)
       })
     },
     beforeDestroy() {

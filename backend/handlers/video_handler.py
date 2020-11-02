@@ -5,6 +5,7 @@ from tornado_request_mapping import request_mapping
 
 from dao.type_dao import TypeDao
 from dao.vod_dao import VodDao
+from mixins.video_handler_mixin import VideoHandlerMixin
 from utils.base_handler import BaseHandler
 from utils.entity_utils import EntityUtils
 from utils.logger_factory import LoggerFactory
@@ -16,7 +17,7 @@ from vo.video_list_vo import VodListVo
 
 
 @request_mapping("/api/video")
-class VideoHandler(BaseHandler):
+class VideoHandler(BaseHandler, VideoHandlerMixin):
     logger = LoggerFactory.get_logger()
 
     @request_mapping('/get_list', 'get')
@@ -79,27 +80,3 @@ class VideoHandler(BaseHandler):
         RedisCache.set(key, response)
         self.send_response(response)
 
-    @staticmethod
-    def _parse_vod_play_url(play_url: str) -> List[Url]:
-        if play_url.startswith('http'):
-            return [{
-                'play_line_name': '播放地址1',
-                'links': [{'name': '在线播放', 'link': play_url}]
-            }]
-        play_group_links = play_url.split('$$$')
-        play_group_links_list = []
-        for index, links in enumerate(play_group_links):
-            name_eps = links.split('$$')
-            links = []
-            for eps in name_eps:
-                for ep in eps.split('#'):
-                    name, link = ep.split('$')
-                    links.append({
-                        'name': name,
-                        'link': link
-                    })
-            play_group_links_list.append({
-                'play_line_name': '播放地址{}'.format(index + 1),
-                'links': links
-            })
-        return play_group_links_list
