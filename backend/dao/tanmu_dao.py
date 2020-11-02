@@ -8,7 +8,7 @@ class TanmuDao:
     @classmethod
     @Select("select * from mac_tanmu where vod_id = %(vod_id)s "
             "and play_line_name = %(play_line_name)s and play_name = %(play_name)s order by `current_time`")
-    def get_by_video_play_name(cls, vod_id: int, play_line_name: str, play_name: str) -> List[Tanmu]:
+    async def get_by_video_play_name(cls, vod_id: int, play_line_name: str, play_name: str) -> List[Tanmu]:
         pass
 
     @classmethod

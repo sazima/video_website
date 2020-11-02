@@ -1,6 +1,6 @@
 from typing import List
 
-from vo.video_detail_vo import Url
+from vo.video_detail_vo import Url, Link
 
 
 class VideoHandlerMixin:
@@ -15,7 +15,7 @@ class VideoHandlerMixin:
         play_group_links_list = []
         for index, links_str in enumerate(play_group_links):
             name_eps = links_str.split('$$')
-            links_list = []
+            links_list = []  # type: List[Link]
             for eps in name_eps:
                 for ep in eps.split('#'):
                     name, link = ep.split('$')
