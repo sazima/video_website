@@ -1,5 +1,5 @@
 <template>
-    <div id="barrageWrapper" ref="barrageWrapper" :style="`height: 1; width: ${width}px`">
+    <div id="barrageWrapper" ref="barrageWrapper" :style="`height: ${height}px; width: ${width}px;`">
 
     </div>
 </template>
@@ -8,7 +8,9 @@
 
         position: absolute;
         top: 0;
-        //left: 0;
+        overflow: hidden;
+        pointer-events: none;
+
 
       .barrageItem {
             width: auto;
@@ -23,7 +25,6 @@
             border-radius: 30px;
             position: absolute;
             white-space: nowrap;
-            z-index: 2147483647;
 
             /*&.move {*/
             /*    transition: transform 4.5s linear;*/
@@ -40,7 +41,7 @@
     props: {
       // data: Array,
       line: { // 行数
-        default: 8,
+        default: 4,
         type: Number,
       },
       lastTime: {
@@ -80,7 +81,7 @@
       div.style.webkitTransform = `translate3d(${div.clientWidth}px, ${divH}px, 0)`;
       setTimeout(() => {
         console.log(div.style.width)
-        div.style.webkitTransform = `translate3d(${-this.width - div.clientWidth}px, ${divH}px, 0)`;
+        div.style.webkitTransform = `translate3d(${-this.width }px, ${divH}px, 0)`;
         div.style.transition = `transform ${this.lastTime}s linear`
       }, 10);
       setTimeout(() => {

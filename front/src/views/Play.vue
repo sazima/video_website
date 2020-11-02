@@ -2,12 +2,12 @@
     <div>
         <b-container :fluid='true'>
             <b-row align-h="center" style="margin-top: 89px">
-                <b-col cols="12" md="10">
+                <b-col cols="12" md="8">
                     <b-alert show variant="info">{{videoInfo.vod_name}} -- {{name}}</b-alert>
                 </b-col>
             </b-row>
             <b-row align-h="center">
-                <b-col cols="12" md="10" ref="videoCol">
+                <b-col cols="12" md="8" ref="videoCol">
                     <video id="vid1" ref="videoPlayer" class="video-js" controls playsinline>
                         <source type="application/x-mpegURL"/>
                     </video>
@@ -15,15 +15,15 @@
                 </b-col>
             </b-row>
           <b-row align-h="center" style="margin-top: 20px">
-            <b-col cols="9" md="7">
+            <b-col cols="9" md="6">
               <b-input placeholder="发送弹幕, 请注意弹幕礼仪" v-model="inputTanmu"></b-input>
             </b-col>
-            <b-col cols="3" >
-              <b-button variant="outline-primary" @click="submitTanmu"  :disabled="!canSubmitTanmu || !inputTanmu">{{sendTanmuButtonText}}</b-button>
+            <b-col cols="2" >
+              <b-button variant="outline-primary" @click="submitTanmu"  :disabled="!canSubmitTanmu || !inputTanmu" style="float: right">{{sendTanmuButtonText}}</b-button>
             </b-col>
           </b-row>
           <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
-                <b-col cols="12" md="10">
+                <b-col cols="12" md="8">
                     <b-card>
                         <b-tabs card style="background-color: #fff">
                             <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name"
@@ -37,7 +37,7 @@
                 </b-col>
             </b-row>
             <b-row align-h="center" style="background-color: #fff; margin-top: 20px">
-                <b-col cols="12" md="10">
+                <b-col cols="12" md="8">
                     <b-card>
                         <b-media>
                             <template v-slot:aside>
@@ -108,8 +108,6 @@ import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
           // // 播放条事件
           this.player.on("timeupdate", this.timeUpdate);
         })
-        this.danmuContainerHeight = this.$refs.videoPlayer.clientHeight
-        this.danmuContainerWidth = this.$refs.videoPlayer.clientWidth
       },
       startPlay(link, play_line_name) {
         this.src = link.link
@@ -127,6 +125,9 @@ import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
       },
       // 根据播放条发送弹幕
       timeUpdate() {
+        this.danmuContainerHeight = this.player.el_.clientHeight
+        this.danmuContainerWidth = this.player.el_.clientWidth
+        console.log(this.danmuContainerHeight, this.danmuContainerWidth)
         const time = this.player.cache_.currentTime
         if (time === 0) {
           this.canSubmitTanmu = false
