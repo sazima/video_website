@@ -8,7 +8,7 @@
             </b-row>
             <b-row align-h="center">
                 <b-col cols="12" md="10" ref="videoCol">
-                    <video id="vid1" ref="videoPlayer" class="video-js" controls>
+                    <video id="vid1" ref="videoPlayer" class="video-js" controls playsinline>
                         <source type="application/x-mpegURL"/>
                     </video>
                     <tanmu ref="tanmu" v-show='showTanmu' :height="danmuContainerHeight" :width="danmuContainerWidth" ></tanmu>
@@ -16,7 +16,7 @@
             </b-row>
           <b-row align-h="center" style="margin-top: 20px">
             <b-col cols="9" md="7">
-              <b-input placeholder="发送弹幕, 请注意弹幕礼仪" v-model="inputTanmu" v-show="currentPlayerTime !== 0"></b-input>
+              <b-input placeholder="发送弹幕, 请注意弹幕礼仪" v-model="inputTanmu"></b-input>
             </b-col>
             <b-col cols="3" >
               <b-button variant="outline-primary" @click="submitTanmu"  :disabled="!canSubmitTanmu || !inputTanmu">{{sendTanmuButtonText}}</b-button>
@@ -58,7 +58,7 @@
 <script>
 import {addTanmu, getTanmu, getVideoById} from "../apis/video";
   import tanmu from '../components/tanmu'
-import {requestFullScreen, clearEventListener} from "@/utils/utils";
+import {requestFullScreen, clearEventListener, isIOS} from "../utils/utils";
 
   export default {
     name: "Play",
@@ -69,7 +69,7 @@ import {requestFullScreen, clearEventListener} from "@/utils/utils";
         src: '',
         vod_id: '',
         inputTanmu: '',
-        sendTanmuButtonText: '发送弹幕',
+        sendTanmuButtonText: '发射',
         showTanmu: true,
         videoInfo: {},
         currentPlayerTime: -1,
@@ -101,7 +101,9 @@ import {requestFullScreen, clearEventListener} from "@/utils/utils";
           this.player.on('dblclick', () => {
             this.switchFull()
           })
-         this.replaceFullScreenButton()
+          if (!isIOS()) {
+            this.replaceFullScreenButton()
+          }
           // // 播放条事件
           this.player.on("timeupdate", this.timeUpdate);
         })
@@ -164,7 +166,7 @@ import {requestFullScreen, clearEventListener} from "@/utils/utils";
         let remainSenconds = 10  // 设置10s间隔, 不能发送太频繁
         let i  = setInterval(() => {
           if (remainSenconds <= 0) {
-            this.sendTanmuButtonText = '发送弹幕'
+            this.sendTanmuButtonText = '发射'
             this.canSubmitTanmu = true
             clearInterval(i)
             return

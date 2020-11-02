@@ -1,7 +1,7 @@
 from typing import List
 
 from models.mac_type import MacType
-from utils.db_utils import Select, Update
+from utils.db_utils import Select, Update, Insert
 
 
 class TypeDao:
@@ -20,7 +20,9 @@ class TypeDao:
     async def get_all_type(cls) -> List[MacType]: pass
 
     @classmethod
-    @Update("update test set name = %(type_en)%")
+    # @Update("update test set name = %(type_en)%")
     # .and_('type_id = %(type_id)s', lambda type_id: type_id.split() != '')
+    @Insert("insert into mac_tanmu (vod_id, play_url, content, `current_time`, current_time_int, styles, user_id, create_time) "
+            "values (%(vod_id)s, %(play_url)s)")
     def test(cls, type_en) -> List[dict]:
         pass

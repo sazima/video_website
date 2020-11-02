@@ -1,5 +1,5 @@
 from inspect import getcallargs, signature, isclass
-from typing import List, TypedDict
+from typing import List, TypedDict, Dict, Any
 
 import aiomysql
 from aiomysql import Pool, Cursor, DictCursor
@@ -32,17 +32,21 @@ class Base:
     def or_(self, sql, when=None):
         return self.append_sql(sql, when, 'OR')
 
+    # 获取参数名称和值
     def _get_sql_and_args(self, *args, **kwargs):
-        call_args = getcallargs(self.func, '', *args, **kwargs)  # type: dict
-        call_args.pop('cls', None)
-        if 'kwargs' in call_args:
-            call_args.update(call_args.pop('kwargs'))
+        if len(args) == 1 and isinstance(args[0], dict) and not kwargs:
+            sql_args = args[0]
+        else:
+            sql_args = getcallargs(self.func, '', *args, **kwargs)  # type: Dict[str, Any]
+            sql_args.pop('cls', None)
+            sql_args.update(sql_args.pop('kwargs', {}))
         sql = self.sql
         for append_statement in self._append_statements:
-            when_args = {k: call_args.get(k) for k in append_statement.when_arg_names}
-            if append_statement.when is None or append_statement.when(**when_args):
+            # 判断是否需要拼接sql片段
+            call_when_params = {name: sql_args.get(name) for name in append_statement.when_arg_names}
+            if append_statement.when is None or append_statement.when(**call_when_params):
                 sql += ' ' + append_statement.operator + ' ' + append_statement.statement
-        return sql, call_args
+        return sql, sql_args
 
     def __call__(self, func):
         self.func = func
@@ -58,7 +62,7 @@ class _AppendStatement:
         self.when = when
         self.operator = operator
         if when is None:
-            self.when_arg_names = dict()
+            self.when_arg_names = list()
         else:
             self.when_arg_names = list(signature(when).parameters.keys())  # type: List[str]
 

@@ -7,16 +7,20 @@ from tornado_request_mapping import request_mapping
 from dao.tanmu_dao import TanmuDao
 from dao.vod_dao import VodDao
 from utils.base_handler import BaseHandler
+from utils.logger_factory import LoggerFactory
 from utils.response import NotFoundResponse, Response, FuckYouResponse, ErrorResponse
 
 
 @request_mapping('/api/tanmu')
 class TanmuHandler(BaseHandler):
+    logger = LoggerFactory.get_logger()
 
     @request_mapping('/get_by_video')
     async def get_by_video(self):
         vod_id = self.get_argument('vod_id')
         play_url = self.get_argument('play_url')
+        self.logger.info(f'获取弹幕 ip: {self.get_remote_ip()}, vod_id: {vod_id}, play_url: {play_url}')
+
         if not vod_id or not play_url:
             return self.send_response(NotFoundResponse())
         tanmu_list = await TanmuDao.get_by_vod_id_and_play_url(int(vod_id), play_url)
@@ -32,6 +36,7 @@ class TanmuHandler(BaseHandler):
         vod_id = int(data.get('vod_id'))
         content = data.get('content')
         play_url = data.get('play_url')
+        self.logger.info(f'创建弹幕 ip: {self.get_remote_ip()}, vod_id: {vod_id}, play_url: {play_url}, content: {content}')
         if not content:
             return self.send_response(ErrorResponse('内容不能为空'))
         current_time = float(data.get('current_time'))

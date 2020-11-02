@@ -7,6 +7,7 @@ from dao.type_dao import TypeDao
 from dao.vod_dao import VodDao
 from utils.base_handler import BaseHandler
 from utils.entity_utils import EntityUtils
+from utils.logger_factory import LoggerFactory
 from utils.redis_cache import RedisCache
 from utils.response import Response, NotFoundResponse, FuckYouResponse
 from vo.type_vo import TypeVo
@@ -16,15 +17,17 @@ from vo.video_list_vo import VodListVo
 
 @request_mapping("/api/video")
 class VideoHandler(BaseHandler):
+    logger = LoggerFactory.get_logger()
 
     @request_mapping('/get_list', 'get')
     async def get_list(self):
         type_en = self.get_argument('type_en', '')
         page = int(self.get_argument('page') or 1)
         per_page = int(self.get_argument('per_page') or 36)
+        kw = self.get_argument('kw', '')
+        self.logger.info(f'视频列表: ip: {self.get_remote_ip()}, type_en: {type_en}, page: {page}, per_page: {per_page}, kw: {kw}')
         if per_page > 60:
             return self.send_response(FuckYouResponse())
-        kw = self.get_argument('kw', '')
         start = (page - 1) * per_page
         type_id = 0
         if type_en:
@@ -52,6 +55,7 @@ class VideoHandler(BaseHandler):
         key = 'video_by_id::{}'.format(vod_id)
         response_cache = RedisCache.get(key)
         if response_cache:
+            self.logger.info(f'视频详情: ip:{self.get_remote_ip()}, vod_id: {vod_id}, 名称: {response_cache.data.get("vod_name")}')
             return self.send_response(response_cache)
 
         vod = await VodDao.get_by_vod_id(int(vod_id))
@@ -61,6 +65,7 @@ class VideoHandler(BaseHandler):
         })
         response = Response(return_dict)
         RedisCache.set(key, response)
+        self.logger.info(f'视频详情: ip:{self.get_remote_ip()}, vod_id: {vod_id}, 视频名称: {return_dict["vod_name"]}')
         self.send_response(response)
 
     @request_mapping("/get_type_list", 'get')

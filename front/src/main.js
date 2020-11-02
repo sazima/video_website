@@ -20,8 +20,11 @@ Vue.use(IconsPlugin)
 
 Vue.config.productionTip = false
 
-new Vue({
+const vue = new Vue({
   router,
   store,
   render: h => h(layout)
 }).$mount('#app')
+
+
+export default vue

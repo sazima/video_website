@@ -1,3 +1,5 @@
+import vue from "@/main";
+
 function isMobile() {
   let userAgentInfo = navigator.userAgent;
   let Agents = ["Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod"];
@@ -7,8 +9,31 @@ function isMobile() {
     }
   }
   return false;
-
 }
+
+function isIOS() {
+    return [
+            'iPad Simulator',
+            'iPhone Simulator',
+            'iPod Simulator',
+            'iPad',
+            'iPhone',
+            'iPod'
+        ].includes(navigator.platform)
+        // iPad on iOS 13 detection
+        || (navigator.userAgent.includes("Mac") && "ontouchend" in document)
+}
+
+function toast(message, variant="danger", append = false) {
+    vue.$bvToast.toast(message, {
+        title: `提示`,
+        toaster: 'b-toaster-top-center',
+        appendToast: append,
+        variant: variant,
+        autoHideDelay: 3000
+    })
+}
+
 function isEmptyObject(data) {
   if (!data) {
     return true
@@ -18,6 +43,7 @@ function isEmptyObject(data) {
   }
   return true
 }
+
 function requestFullScreen(ele) {
   if (ele.innerHTML) {
     if (ele.requestFullscreen) {
@@ -38,4 +64,4 @@ function clearEventListener(element) {
 
 
 
-export {isMobile, isEmptyObject, requestFullScreen, clearEventListener}
+export {isMobile, isEmptyObject, requestFullScreen, clearEventListener, isIOS, toast}

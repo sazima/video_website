@@ -8,6 +8,7 @@ from dao.vod_dao import VodDao
 from models.mac_vod import MacVod
 from utils.base_handler import BaseHandler
 from utils.entity_utils import EntityUtils
+from utils.logger_factory import LoggerFactory
 from utils.redis_cache import RedisCache
 from utils.response import Response
 from vo.type_vo import TypeVo
@@ -15,10 +16,12 @@ from vo.type_vo import TypeVo
 
 @request_mapping('/api/index')
 class IndexHandler(BaseHandler):
+    logger = LoggerFactory.get_logger()
 
     @request_mapping("/indexTree", 'get')
     async def get_index_tree(self):
         key = 'index_tree'
+        self.logger.info('获取主页数据, ip: {}'.format(self.get_remote_ip()))
         response_cache = RedisCache.get(key)
         if response_cache:
             return self.send_response(response_cache)

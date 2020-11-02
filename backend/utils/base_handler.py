@@ -1,5 +1,6 @@
 import json
 from decimal import Decimal
+from typing import Optional, Awaitable
 
 from tornado.escape import utf8
 import datetime
@@ -10,7 +11,11 @@ from utils.response import Response
 
 
 class BaseHandler(RequestHandler):
+
     request: HTTPServerRequest
+
+    def data_received(self, chunk: bytes) -> Optional[Awaitable[None]]:
+        pass
 
     def options(self):
         # no body
@@ -29,6 +34,11 @@ class BaseHandler(RequestHandler):
         chunk = json.dumps(response_dict, cls=_JSONTimeEncoder)
         chunk = utf8(chunk)
         return self._write_buffer.append(chunk)
+
+    def get_remote_ip(self):
+        return self.request.headers.get("X-Real-IP") or \
+               self.request.headers.get("X-Forwarded-For") or \
+               self.request.remote_ip
 
 
 class _JSONTimeEncoder(json.JSONEncoder):
