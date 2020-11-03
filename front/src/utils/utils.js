@@ -45,15 +45,25 @@ function isEmptyObject(data) {
 }
 
 function requestFullScreen(ele) {
-  if (ele.innerHTML) {
-    if (ele.requestFullscreen) {
-      ele.requestFullscreen();
-    } else if (ele.mozRequestFullScreen) {
-      ele.mozRequestFullScreen();
-    } else if (ele.webkitRequestFullScreen) {
-      ele.webkitRequestFullScreen();
+    if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
+    } else {
+        if (ele.requestFullscreen) {
+            ele.requestFullscreen();
+        } else if (ele.mozRequestFullScreen) {
+            ele.mozRequestFullScreen();
+        } else if (ele.webkitRequestFullScreen) {
+            ele.webkitRequestFullScreen();
+        }
     }
-  }
 }
 
 function clearEventListener(element) {

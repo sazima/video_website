@@ -39,11 +39,6 @@
 
   @Component({
     props: {
-      // data: Array,
-      line: { // 行数
-        default: 4,
-        type: Number,
-      },
       lastTime: {
         default: 8,
         type: Number,
@@ -75,8 +70,8 @@
       div.innerText = data.content;
       div.classList.add('barrageItem');
       wrapperItem.appendChild(div);
-      const divH = div.clientHeight * (Math.floor(Math.random() * this.line));
-      div.style.width = `${div.clientWidth}px`;
+      const divH = Math.random() * (this.height * 0.4 - div.clientHeight)  // 视频上面40%
+      // div.style.width = `${div.clientWidth}px`;
       div.style.right = 0
       div.style.webkitTransform = `translate3d(${div.clientWidth}px, ${divH}px, 0)`;
       setTimeout(() => {
