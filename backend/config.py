@@ -12,6 +12,7 @@ class Config:
     redis_port = 6379
     redis_db = 3
     redis_prefix = 'video_'
+    expired_seconds = 3600
 
     logger_directory = os.path.join(os.path.dirname(__file__), 'log')
 

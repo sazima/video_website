@@ -7,7 +7,7 @@ from config import Config
 
 
 class RedisCache:
-    client = Redis(host=Config.redis_host, port=Config.redis_port)
+    client = Redis(host=Config.redis_host, port=Config.redis_port, db=Config.redis_db)
     prefix = Config.redis_prefix
 
     @classmethod
@@ -16,7 +16,8 @@ class RedisCache:
         return cls._loads(value)
 
     @classmethod
-    def set(cls, name, value, ex=3600):
+    def set(cls, name, value, ex=None):
+        ex = ex or Config.expired_seconds
         cls.client.set(cls.prefix + name, cls._dumps(value), ex)
 
     @classmethod
