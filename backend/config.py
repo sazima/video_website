@@ -16,3 +16,5 @@ class Config:
 
     logger_directory = os.path.join(os.path.dirname(__file__), 'log')
 
+    api_encrypt = False
+

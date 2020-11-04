@@ -10,6 +10,7 @@ class Link(TypedDict):
 
 class Url(TypedDict):
     play_line_name: str
+    vod_play_from: str
     links: List[Link]
 
 

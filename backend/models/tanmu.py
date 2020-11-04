@@ -9,7 +9,7 @@ class Tanmu(TypedDict, total=False):
     content: str
     play_url: str
     play_name: str  # 当前链接名称,比如bd高清
-    play_line_name: str
+    vod_play_from: str
     current_time: float
     current_time_int: int
     styles: str

@@ -16,8 +16,7 @@ class RedisCache:
         return cls._loads(value)
 
     @classmethod
-    def set(cls, name, value, ex=None):
-        ex = ex or Config.expired_seconds
+    def set(cls, name, value, ex=Config.expired_seconds):
         cls.client.set(cls.prefix + name, cls._dumps(value), ex)
 
     @classmethod

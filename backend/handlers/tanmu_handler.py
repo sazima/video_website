@@ -10,8 +10,10 @@ from dao.vod_dao import VodDao
 from mixins.video_handler_mixin import VideoHandlerMixin
 from models.tanmu import Tanmu
 from utils.base_handler import BaseHandler
+from utils.entity_utils import EntityUtils
 from utils.logger_factory import LoggerFactory
 from utils.response import NotFoundResponse, Response, FuckYouResponse, ErrorResponse
+from vo.tanmu_vo import TanmuVo
 from vo.video_detail_vo import Url
 
 
@@ -22,40 +24,40 @@ class TanmuHandler(BaseHandler, VideoHandlerMixin):
     @request_mapping('/get_by_video')
     async def get_by_video(self):
         vod_id = self.get_argument('vod_id')
-        play_line_name = self.get_argument('play_line_name')
         play_name = self.get_argument('play_name')
-        self.logger.info(f'获取弹幕 ip: {self.get_remote_ip()}, vod_id: {vod_id}, {play_line_name} - {play_name}')
+        vod_play_from = self.get_argument('vod_play_from')
+        self.logger.info(f'获取弹幕 ip: {self.get_remote_ip()}, vod_id: {vod_id}, {vod_play_from} - {play_name}')
 
-        if not vod_id or not play_line_name or not play_name:
+        if not vod_id or not vod_play_from or not play_name:
             return self.send_response(NotFoundResponse())
-        tanmu_list = await TanmuDao.get_by_video_play_name(int(vod_id), play_line_name, play_name)
+        tanmu_list = await TanmuDao.get_by_video_play_from(int(vod_id), vod_play_from, play_name)
         return_dict = defaultdict(list)
         return_dict.update({1: [{'content': '发送一条弹幕试试吧'}, {'content': '弹幕有你更精彩'}]})
         for tanmu in tanmu_list:
-            return_dict[tanmu['current_time_int']].append(tanmu)
+            return_dict[tanmu['current_time_int']].append(EntityUtils.convert(tanmu, TanmuVo))
         self.send_response(Response(return_dict))
 
     @request_mapping('/create', method='post')
     async def create(self):
-        data = json.loads(self.request.body)
+        data = self.data
         vod_id = int(data.get('vod_id'))
         content = data.get('content')
         play_url = data.get('play_url')
         play_name = data.get('play_name')  # 比如bd高清
-        play_line_name = data.get('play_line_name')  # 比如播放地址1
+        vod_play_from = data.get('vod_play_from')  # 比如kakam3u8
         current_time = float(data.get('current_time'))
         user_id = 1
-        self.logger.info(f'发送弹幕 ip: {self.get_remote_ip()}, {vod_id} {play_line_name} - {play_name} content: {content}')
+        self.logger.info(f'发送弹幕 ip: {self.get_remote_ip()}, {vod_id} {vod_play_from} - {play_name} content: {content}')
         if not content:
             return self.send_response(ErrorResponse('内容不能为空'))
         if current_time < 0:
             return self.send_response(FuckYouResponse())
-        if not await self.check_play_url_and_play_name(play_url, play_name, play_line_name, int(vod_id)):
+        if not await self.check_play_url_and_play_name(play_url, play_name, vod_play_from, int(vod_id)):
             return self.send_response(NotFoundResponse(msg='发送失败'))
         insert_data = {  # type: Tanmu
             'vod_id': vod_id,
             'content': content,
-            'play_line_name': play_line_name,
+            'vod_play_from': vod_play_from,
             'play_url': play_url,
             'play_name': play_name,
             'current_time': current_time,
@@ -69,7 +71,7 @@ class TanmuHandler(BaseHandler, VideoHandlerMixin):
         self.send_response(Response({'id': 0}))
 
     # 验证该播放链接是否是该视频的
-    async def check_play_url_and_play_name(self, play_url: str, play_name: str, play_line_name: str, vod_id: int, ) -> bool:
+    async def check_play_url_and_play_name(self, play_url: str, play_name: str, vod_play_from: str, vod_id: int, ) -> bool:
         if not play_url or '$' in play_url or not play_url.startswith('http') or not play_url.endswith('m3u8'):
             return False
             # return self.send_response(NotFoundResponse('链接错误'))
@@ -78,9 +80,9 @@ class TanmuHandler(BaseHandler, VideoHandlerMixin):
         vod_video = await VodDao.get_by_vod_id(int(vod_id))
         if not vod_video:
             return False
-        urls_list: List[Url] = self._parse_vod_play_url(vod_video['vod_play_url'])
+        urls_list: List[Url] = self._parse_vod_play_url(vod_video['vod_play_url'], vod_video['vod_play_from'])
         for url in urls_list:
-            if url['play_line_name'] == play_line_name:
+            if url['vod_play_from'] == vod_play_from:
                 for link_dict in url['links']:
                     if play_name == link_dict['name']:
                         if play_url == link_dict['link']:

@@ -62,7 +62,7 @@ class VideoHandler(BaseHandler, VideoHandlerMixin):
         vod = await VodDao.get_by_vod_id(int(vod_id))
         return_dict = EntityUtils.convert(vod, VideoDetailVo)
         return_dict.update({
-            'urls': self._parse_vod_play_url(vod['vod_play_url'])
+            'urls': self._parse_vod_play_url(vod['vod_play_url'], vod['vod_play_from'])
         })
         response = Response(return_dict)
         RedisCache.set(key, response)

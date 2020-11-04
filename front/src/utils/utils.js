@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import vue from "@/main";
+import CryptoJS from 'crypto-js';
 
 function isMobile() {
   let userAgentInfo = navigator.userAgent;
@@ -73,5 +75,30 @@ function clearEventListener(element) {
 }
 
 
+function aes_encrypt(plaintext, key, iv) {
+    key = CryptoJS.enc.Utf8.parse(key)
+    iv = CryptoJS.enc.Utf8.parse(iv)
+    let srcs = CryptoJS.enc.Utf8.parse(plaintext)
+    let encrypted = CryptoJS.AES.encrypt(srcs, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+    })
+    return encrypted.ciphertext.toString()
+}
 
-export {isMobile, isEmptyObject, requestFullScreen, clearEventListener, isIOS, toast}
+function aes_decrypt(ciphertext, key, iv) {
+    key = CryptoJS.enc.Utf8.parse(key)
+    iv = CryptoJS.enc.Utf8.parse(iv)
+    let hex_string = CryptoJS.enc.Hex.parse(ciphertext)
+    let srcs = CryptoJS.enc.Base64.stringify(hex_string)
+    let decrypt = CryptoJS.AES.decrypt(srcs, key, {
+        iv: iv,
+        mode: CryptoJS.mode.CBC,
+        padding: CryptoJS.pad.Pkcs7
+    })
+    decrypt = decrypt.toString(CryptoJS.enc.Utf8)
+    return decrypt.toString()
+}
+
+export {isMobile, isEmptyObject, requestFullScreen, clearEventListener, isIOS, toast, aes_decrypt, aes_encrypt}

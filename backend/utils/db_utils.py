@@ -15,12 +15,16 @@ class Base:
 
     @classmethod
     async def _get_pool(cls) -> Pool:
-        return await aiomysql.create_pool(host=Config.db_host,
+        if hasattr(cls, '_pool'):
+            return cls._pool
+        pool = await aiomysql.create_pool(host=Config.db_host,
                                           port=Config.db_port,
                                           user=Config.db_user,
                                           password=Config.db_password,
                                           db=Config.db_name,
                                           cursorclass=DictCursor)
+        setattr(cls, '_pool', pool)
+        return pool
 
     def append_sql(self, sql: str, when: callable = None, operator=''):
         self._append_statements.append(_AppendStatement(sql, when, operator))

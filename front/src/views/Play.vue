@@ -30,7 +30,7 @@
             <b-tabs card style="background-color: #fff">
               <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name"
                      ref="tab" :active="false">
-                <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link, url.play_line_name)"
+                <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link, url.vod_play_from)"
                           variant="outline-primary">{{ link.name }}
                 </b-button>
               </b-tab>
@@ -79,7 +79,7 @@ export default {
       danmuContainerWidth: 90,
       canSubmitTanmu: false,
       name: '',
-      play_line_name: '',
+      vod_play_from: '',  // 链接来源
       tanmuList: {}
     };
   },
@@ -111,10 +111,10 @@ export default {
         this.player.on("timeupdate", this.timeUpdate);
       })
     },
-    startPlay(link, play_line_name) {
+    startPlay(link, vod_play_from) {
       this.src = link.link
       this.name = link.name
-      this.play_line_name = play_line_name
+      this.vod_play_from = vod_play_from
       document.title = this.videoInfo.vod_name + this.name
       if (!this.player) {
         this.createPlayer()
@@ -162,7 +162,7 @@ export default {
         vod_id: this.vod_id,
         play_url: this.src,
         current_time: current_time,
-        play_line_name: this.play_line_name,
+        vod_play_from: this.vod_play_from,
         play_name: this.name,
         content: this.inputTanmu
       }
@@ -199,8 +199,8 @@ export default {
       this.showTanmu = true
       getTanmu({
         vod_id: this.vod_id,
-        play_line_name: this.play_line_name,
         play_name: this.name,
+        vod_play_from: this.vod_play_from,
         play_url: this.src
       }).then(data => {
         console.log('获取弹幕成功', data)
@@ -230,7 +230,7 @@ export default {
     getVideoById(this.vod_id).then(data => {
       this.videoInfo = data
       this.videoInfo.vod_content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.vod_content.replace(/\s*/g, "").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
-      this.startPlay(this.videoInfo.urls[0].links[0], this.videoInfo.urls[0].play_line_name)
+      this.startPlay(this.videoInfo.urls[0].links[0], this.videoInfo.urls[0].vod_play_from)
     })
   },
   beforeDestroy() {

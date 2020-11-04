@@ -1,32 +1,45 @@
+from binascii import b2a_hex, a2b_hex
+from random import choice
+from string import digits
+
 from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.ciphers import algorithms
 
 
-class EncryptUtils:
+class AesCrypto(object):
+    def __init__(self, key=None, iv=None):
+        self.key = key or self.get_random(16)
+        self.iv = iv or self.get_random(16)
+        self.mode = AES.MODE_CBC
 
-    @classmethod
-    def encrypt(cls, key: str, msg: str):
-        key_bytes = key.encode()
-        msg_bytes = msg.encode()
-        iv = get_random_bytes(16)
-        cipher = AES.new(key_bytes, AES.MODE_CFB, iv)
-        ciphertext = cipher.encrypt(msg_bytes)
-        return iv.hex() + '$' + ciphertext.hex()
+    @staticmethod
+    def pkcs7_padding(data):
+        if not isinstance(data, bytes):
+            data = data.encode()
+        padder = padding.PKCS7(algorithms.AES.block_size).padder()
+        padded_data = padder.update(data) + padder.finalize()
+        return padded_data
 
-    @classmethod
-    def decrypt(cls, key: str, text: str):
-        iv, ciphertext = text.split('$')
-        key_bytes = key.encode()
-        cipher = AES.new(key_bytes, AES.MODE_CFB, bytearray.fromhex(iv))
-        msg = cipher.decrypt(bytearray.fromhex(ciphertext))
-        return msg.decode("utf-8")
+    def encrypt(self, plaintext):
+        cryptor = AES.new(self.key, self.mode, self.iv)
+        plaintext = plaintext
+        plaintext = self.pkcs7_padding(plaintext)
+        ciphertext = cryptor.encrypt(plaintext)
+        return b2a_hex(ciphertext).decode('utf-8')
+
+    def decrypt(self, ciphertext):
+        cryptor = AES.new(self.key, self.mode, self.iv)
+        plaintext = cryptor.decrypt(a2b_hex(ciphertext))
+        return bytes.decode(plaintext).rstrip().strip('\x01')
+
+    def get_random(self, length):
+        return ''.join(choice(digits + 'abcdef') for _ in range(length)).encode('utf-8').lower()
 
 
 if __name__ == '__main__':
-    key = '1234567812345678'
-    a = 'hello world'
-    res = EncryptUtils.encrypt(key, a)
-    print(res)
-    print(EncryptUtils.decrypt(key, res))
-    # print(res.hex())
-    # print(EncryptUtils.decrypt(key, res))
+    aes = AesCrypto('ddfbccae-b4c4-11')
+    encrypted = aes.encrypt('Congratulations1111! hello')
+    print(encrypted)
+    decrypted = aes.decrypt(encrypted)
+    print(decrypted)
