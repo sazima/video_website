@@ -8,11 +8,12 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './assets/global.css'
 import Video from "video.js";
 import "video.js/dist/video-js.min.css"
-Vue.prototype.$video = Video
-
 import VConsole from 'vconsole'
 
-if (process.env.NODE_ENV === 'development') {
+Vue.prototype.$video = Video
+
+
+if (process.env.NODE_ENV === 'cordova') {
   new VConsole()
 }
 Vue.use(BootstrapVue)

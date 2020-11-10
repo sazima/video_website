@@ -1,11 +1,11 @@
 const UglifyPlugin = require('uglifyjs-webpack-plugin')
 
-// vue.config.js
+
 module.exports = {
 
   configureWebpack: config => {
-    console.log(config);
-    if (process.env.NODE_ENV === 'production') {
+    const env = process.env.NODE_ENV
+    if (env === 'production') {
       // 为生产环境修改配置...
       let optimization = {
         minimizer: [new UglifyPlugin({
@@ -22,8 +22,12 @@ module.exports = {
       Object.assign(config, {
         optimization
       })
-    } else {
+    } else if (env === 'development'){
       // 为开发环境修改配置...
+    } else {
+        //
     }
-  }
+  },
+  outputDir: process.env.NODE_ENV === 'production' ? 'dist' : 'video_cordova/www',
+  publicPath: './'
 }
