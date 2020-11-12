@@ -69,9 +69,14 @@ function requestFullScreen(ele) {
 }
 
 function clearEventListener(element) {
-  const clonedElement = element.cloneNode(true);
-  element.replaceWith(clonedElement);
-  return clonedElement;
+  try {
+      const clonedElement = element.cloneNode(true);
+      element.replaceWith(clonedElement);
+        return clonedElement;
+   } catch (e) {
+      console.log(e);
+  }
+   return element;
 }
 
 
