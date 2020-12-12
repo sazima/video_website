@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.video.tanmu.dao.VideoLinkDao">
+  <resultMap id="BaseResultMap" type="com.video.tanmu.model.VideoLink">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="video_id" jdbcType="INTEGER" property="videoId" />
+    <result column="from_name" jdbcType="VARCHAR" property="fromName" />
+    <result column="play_name" jdbcType="VARCHAR" property="playName" />
+    <result column="play_url" jdbcType="VARCHAR" property="playUrl" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, video_id, from_name, play_name, play_url
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from video_link
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from video_link
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoLink" useGeneratedKeys="true">
+    insert into video_link (video_id, from_name, play_name, 
+      play_url)
+    values (#{videoId,jdbcType=INTEGER}, #{fromName,jdbcType=VARCHAR}, #{playName,jdbcType=VARCHAR}, 
+      #{playUrl,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoLink" useGeneratedKeys="true">
+    insert into video_link
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="videoId != null">
+        video_id,
+      </if>
+      <if test="fromName != null">
+        from_name,
+      </if>
+      <if test="playName != null">
+        play_name,
+      </if>
+      <if test="playUrl != null">
+        play_url,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="videoId != null">
+        #{videoId,jdbcType=INTEGER},
+      </if>
+      <if test="fromName != null">
+        #{fromName,jdbcType=VARCHAR},
+      </if>
+      <if test="playName != null">
+        #{playName,jdbcType=VARCHAR},
+      </if>
+      <if test="playUrl != null">
+        #{playUrl,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.video.tanmu.model.VideoLink">
+    update video_link
+    <set>
+      <if test="videoId != null">
+        video_id = #{videoId,jdbcType=INTEGER},
+      </if>
+      <if test="fromName != null">
+        from_name = #{fromName,jdbcType=VARCHAR},
+      </if>
+      <if test="playName != null">
+        play_name = #{playName,jdbcType=VARCHAR},
+      </if>
+      <if test="playUrl != null">
+        play_url = #{playUrl,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.video.tanmu.model.VideoLink">
+    update video_link
+    set video_id = #{videoId,jdbcType=INTEGER},
+      from_name = #{fromName,jdbcType=VARCHAR},
+      play_name = #{playName,jdbcType=VARCHAR},
+      play_url = #{playUrl,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByVideoId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> from video_link WHERE video_id = #{videoId}
+  </select>
+</mapper>

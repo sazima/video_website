@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.video.tanmu.dao.VideoDao">
+    <resultMap id="BaseResultMap" type="com.video.tanmu.model.Video">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="type_id1" jdbcType="INTEGER" property="typeId1"/>
+        <result column="type_id2" jdbcType="INTEGER" property="typeId2"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="picture" jdbcType="VARCHAR" property="picture"/>
+        <result column="content" jdbcType="VARCHAR" property="content"/>
+        <result column="av" jdbcType="VARCHAR" property="av"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        `id`, type_id1, type_id2, `name`, picture, content, av
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from video
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        DELETE
+        FROM video
+        WHERE id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.Video"
+            useGeneratedKeys="true">
+        INSERT INTO video (type_id1, type_id2, `name`,
+                           picture, content, av)
+        VALUES (#{typeId1,jdbcType=INTEGER}, #{typeId2,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+                #{picture,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{av,jdbcType=VARCHAR})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.Video"
+            useGeneratedKeys="true">
+        insert into video
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="typeId1 != null">
+                type_id1,
+            </if>
+            <if test="typeId2 != null">
+                type_id2,
+            </if>
+            <if test="name != null">
+                `name`,
+            </if>
+            <if test="picture != null">
+                picture,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="av != null">
+                av,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="typeId1 != null">
+                #{typeId1,jdbcType=INTEGER},
+            </if>
+            <if test="typeId2 != null">
+                #{typeId2,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="picture != null">
+                #{picture,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="av != null">
+                #{av,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.video.tanmu.model.Video">
+        update video
+        <set>
+            <if test="typeId1 != null">
+                type_id1 = #{typeId1,jdbcType=INTEGER},
+            </if>
+            <if test="typeId2 != null">
+                type_id2 = #{typeId2,jdbcType=INTEGER},
+            </if>
+            <if test="name != null">
+                `name` = #{name,jdbcType=VARCHAR},
+            </if>
+            <if test="picture != null">
+                picture = #{picture,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="av != null">
+                av = #{av,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.video.tanmu.model.Video">
+        UPDATE video
+        SET type_id1 = #{typeId1,jdbcType=INTEGER},
+            type_id2 = #{typeId2,jdbcType=INTEGER},
+            `name`   = #{name,jdbcType=VARCHAR},
+            picture  = #{picture,jdbcType=VARCHAR},
+            content  = #{content,jdbcType=VARCHAR},
+            av       = #{av,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=INTEGER}
+    </update>
+    <select id="selectByParentTypeId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from video WHERE type_id2 = #{parentTypeId} order by id desc limit #{limit}
+    </select>
+
+    <select id="selectByQuery" parameterType="com.video.tanmu.param.VideoQueryParam" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from video
+        <where>
+            <if test="kw != null">
+                name like concat('%', #{kw}, '%')
+            </if>
+            <if test="typeId != null">
+                type_id1 = #{typeId} or type_id2 = #{typeId}
+            </if>
+        </where>
+        order by id desc
+    </select>
+    <select id="selectByAv" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from video WHERE av = #{av}
+
+    </select>
+</mapper>

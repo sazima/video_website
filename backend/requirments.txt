@@ -1,8 +1,0 @@
-typing-extensions
-aiomysql
-tornado
-git+https://github.com/sazima/tornado_request_mapping
-redis
-
-pytz
-pycrypto
