@@ -23,6 +23,6 @@ public class TanmuInsertParam {
     /**
      * 弹幕时间
      */
-    private Integer currentTime;
+    private Double currentTime;
 
 }

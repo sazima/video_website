@@ -1,4 +1,4 @@
-CREATE TABLE typeModel
+CREATE TABLE type
 (
     id          int(11) PRIMARY KEY AUTO_INCREMENT,
     name        varchar(255) DEFAULT '' COMMENT '名称',
@@ -6,7 +6,7 @@ CREATE TABLE typeModel
     sort        int(11)      DEFAULT 0 COMMENT '排序'
 );
 
-CREATE TABLE videoModel
+CREATE TABLE video
 (
     id       int(11) PRIMARY KEY AUTO_INCREMENT,
     type_id1 int(11)      DEFAULT 0 COMMENT '分类1',

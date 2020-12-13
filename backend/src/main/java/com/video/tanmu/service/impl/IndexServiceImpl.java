@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class IndexServiceImpl implements IndexService {
@@ -37,11 +38,12 @@ public class IndexServiceImpl implements IndexService {
                  continue;
             }
             parentTypeList.add(ConvertUtils.copyProperties(typeModel, TypeVo.class));
-            List<VideoModel> videoModels = videoDao.selectByTypeId(typeModel.getId(), 36);
+            List<VideoModel> videoModels = videoDao.selectByTypeId(typeModel.getId(), 18);
             TypeWithVideoListVo typeWithVideoListVo = new TypeWithVideoListVo();
             typeWithVideoListVo.setTypeId(typeModel.getId());
             typeWithVideoListVo.setTypeName(typeModel.getName());
-            typeWithVideoListVo.setVideoListVos(ConvertUtils.copyListProperties(videoModels, VideoListVo.class));
+            List<VideoListVo> videoListVos = videoModels.stream().map(VideoListVo::convertFromVideoModel).collect(Collectors.toList());
+            typeWithVideoListVo.setVideoListVos(videoListVos);
             typeWithVideoListVoList.add(typeWithVideoListVo);
         }
         indexTreeVo.setTypeVoList(parentTypeList);

@@ -3,6 +3,7 @@ package com.video.tanmu.service.impl;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
 import com.video.tanmu.dao.VideoTanmuDao;
+import com.video.tanmu.model.VideoLinkModel;
 import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.model.VideoTanmuModel;
 import com.video.tanmu.param.TanmuInsertParam;
@@ -61,7 +62,8 @@ public class TanmuServiceImpl implements TanmuService {
         return Response.success(tanmuMap);
     }
 
-    public Response<VideoTanmuVo> insert(TanmuInsertParam tanmuInsertParam) {
+    @Override
+    public Response<Integer> insert(TanmuInsertParam tanmuInsertParam) {
         if (StringUtils.isBlank(tanmuInsertParam.getAv())) {
             return Response.fail("视频不存在");
         }
@@ -79,9 +81,20 @@ public class TanmuServiceImpl implements TanmuService {
         if (null == videoModel) {
             return Response.fail("视频不存在");
         }
-
+        VideoLinkModel videoLinkModel = videoLinkDao.selectByFromAndName(tanmuInsertParam.getFromName(), tanmuInsertParam.getPlayName(), videoModel.getId());
+        if (null == videoLinkModel) {
+            return Response.fail("没有该视频选集");
+        }
         VideoTanmuModel videoTanmuModel = new VideoTanmuModel();
         videoTanmuModel.setVideoId(videoModel.getId());
-        return null;
+        videoTanmuModel.setContent(tanmuInsertParam.getContent());
+        videoTanmuModel.setFromName(tanmuInsertParam.getFromName());
+        videoTanmuModel.setPlayName(tanmuInsertParam.getPlayName());
+        videoTanmuModel.setPlayUrl(videoLinkModel.getPlayUrl());
+        videoTanmuModel.setVideoLinkId(videoLinkModel.getId());
+        videoTanmuModel.setCurrentTime(tanmuInsertParam.getCurrentTime());
+        videoTanmuModel.setCurrentTimeInt(tanmuInsertParam.getCurrentTime().intValue());
+        int inserted = videoTanmuDao.insertSelective(videoTanmuModel);
+        return Response.success(inserted);
     }
 }

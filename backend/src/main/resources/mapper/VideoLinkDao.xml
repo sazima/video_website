@@ -87,4 +87,7 @@
   <select id="selectByVideoId" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/> from video_link WHERE video_id = #{videoId}
   </select>
+  <select id="selectByFromAndName" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> from video_link WHERE from_name = #{fromName} and play_name = #{playName} and video_id = #{videoId} limit 1
+  </select>
 </mapper>

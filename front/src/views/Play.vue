@@ -3,7 +3,7 @@
     <b-container :fluid='true'>
       <b-row align-h="center" style="margin-top: 89px">
         <b-col cols="12" md="8">
-          <b-alert show variant="info">{{ videoInfo.name }} -- {{ name }}</b-alert>
+          <b-alert show variant="info">{{ videoInfo.name }} -- {{ playName }}</b-alert>
         </b-col>
       </b-row>
       <b-row align-h="center">
@@ -79,8 +79,8 @@ export default {
       danmuContainerHeight: 90,
       danmuContainerWidth: 90,
       canSubmitTanmu: false,
-      name: '',
       fromName: '',  // 链接来源
+      playName: '',
       tanmuList: {}
     };
   },
@@ -158,13 +158,13 @@ export default {
         return
       }
       this.canSubmitTanmu = false
-      const current_time = this.player.cache_.currentTime
+      const currentTime = this.player.cache_.currentTime
       let tanmuData = {
-        vod_id: this.vod_id,
-        play_url: this.src,
-        current_time: current_time,
-        vod_play_from: this.vod_play_from,
-        play_name: this.name,
+        av: this.av,
+        playUrl: this.arc,
+        currentTime: currentTime,
+        fromName: this.fromName,
+        playName: this.playName,
         content: this.inputTanmu
       }
       addTanmu(tanmuData)  // 调用接口
@@ -173,10 +173,10 @@ export default {
       })
       // 存刚刚发的弹幕数据, 延迟是因为担心会重复显示
       setTimeout(() => {
-        if (this.tanmuList[parseInt(current_time)]) {
-          this.tanmuList[parseInt(current_time)].push(tanmuData)
+        if (this.tanmuList[parseInt(currentTime)]) {
+          this.tanmuList[parseInt(currentTime)].push(tanmuData)
         } else {
-          this.tanmuList[parseInt(current_time)] = [tanmuData]
+          this.tanmuList[parseInt(currentTime)] = [tanmuData]
         }
       }, 3000)
       this.inputTanmu = ''

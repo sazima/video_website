@@ -17,7 +17,7 @@ async function getTypes() {
 }
 
 async function addTanmu(data) {
-    const url = '/tanmu/create'
+    const url = '/tanmu/insert'
     return request.post(url, data)
 }
 

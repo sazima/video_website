@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class VideoServiceImpl implements VideoService {
@@ -38,7 +39,7 @@ public class VideoServiceImpl implements VideoService {
         PageHelper.startPage(pageParam.getPage(), pageParam.getPageSize());
         List<VideoModel> videoModels = videoDao.selectByQuery(videoQueryParam);
         long total = ((Page) videoModels).getTotal();
-        List<VideoListVo> videoListVos = ConvertUtils.copyListProperties(videoModels, VideoListVo.class);
+        List<VideoListVo> videoListVos = videoModels.stream().map(VideoListVo::convertFromVideoModel).collect(Collectors.toList());
         PageData<VideoListVo> videoPageData = new PageData<>(total, videoListVos);
         return Response.success(videoPageData);
     }
@@ -72,7 +73,6 @@ public class VideoServiceImpl implements VideoService {
             if (stringVideoPlayGroupHashMap.containsKey(videoLinkModel.getFromName())) {
                 VideoPlayGroup videoPlayGroup = stringVideoPlayGroupHashMap.get(videoLinkModel.getFromName());
                 VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), videoLinkModel.getPlayUrl());
-//                videoPlayGroup.getVideoPlayUrlVoList().add(videoPlayUrlVo);
             } else {
                 VideoPlayGroup videoPlayGroup = new VideoPlayGroup();
                 videoPlayGroup.setFromName(videoLinkModel.getFromName());

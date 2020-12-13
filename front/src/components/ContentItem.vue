@@ -27,7 +27,7 @@
 <script>
   export default {
     name: "ContentItem",
-    props: {showMoreButton: Boolean, items: Array, title: String, typeId: String, videos: Array},
+    props: {showMoreButton: Boolean, items: Array, title: String, typeId: Number, videos: Array},
     data() {
       return {
         img_width: 196,

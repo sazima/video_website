@@ -23,5 +23,6 @@ public interface VideoLinkDao {
     List<VideoLinkModel> selectByVideoId(@Param("videoId") Integer videoId);
 
     VideoLinkModel selectByFromAndName(@Param("fromName") String fromName,
-                                       @Param("playUrl")String playUrl);
+                                       @Param("playName")String playName,
+                                       @Param("videoId") Integer videoId);
 }

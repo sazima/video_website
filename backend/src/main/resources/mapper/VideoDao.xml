@@ -5,13 +5,14 @@
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="type_id1" jdbcType="INTEGER" property="typeId1"/>
         <result column="type_id2" jdbcType="INTEGER" property="typeId2"/>
+        <result column="update_time" jdbcType="INTEGER" property="updateTime"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
         <result column="picture" jdbcType="VARCHAR" property="picture"/>
         <result column="content" jdbcType="VARCHAR" property="content"/>
         <result column="av" jdbcType="VARCHAR" property="av"/>
     </resultMap>
     <sql id="Base_Column_List">
-        `id`, type_id1, type_id2, `name`, picture, content, av
+        `id`, type_id1, type_id2, `name`, picture, content, av, update_time
     </sql>
     <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
@@ -27,9 +28,9 @@
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoModel"
             useGeneratedKeys="true">
         INSERT INTO video (type_id1, type_id2, `name`,
-                           picture, content, av)
+                           picture, content, av, update_time)
         VALUES (#{typeId1,jdbcType=INTEGER}, #{typeId2,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
-                #{picture,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{av,jdbcType=VARCHAR})
+                #{picture,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{av,jdbcType=VARCHAR}, #{updateTime})
     </insert>
     <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoModel"
             useGeneratedKeys="true">
@@ -53,6 +54,9 @@
             <if test="av != null">
                 av,
             </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="typeId1 != null">
@@ -72,6 +76,9 @@
             </if>
             <if test="av != null">
                 #{av,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime}
             </if>
         </trim>
     </insert>
@@ -96,6 +103,9 @@
             <if test="av != null">
                 av = #{av,jdbcType=VARCHAR},
             </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
@@ -106,7 +116,8 @@
             `name`   = #{name,jdbcType=VARCHAR},
             picture  = #{picture,jdbcType=VARCHAR},
             content  = #{content,jdbcType=VARCHAR},
-            av       = #{av,jdbcType=VARCHAR}
+            av       = #{av,jdbcType=VARCHAR},
+            update_time       = #{update_time}
         WHERE id = #{id,jdbcType=INTEGER}
     </update>
     <select id="selectByTypeId" resultMap="BaseResultMap">

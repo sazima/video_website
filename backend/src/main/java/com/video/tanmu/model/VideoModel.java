@@ -20,6 +20,8 @@ public class VideoModel implements Serializable {
 
     private Integer typeId2;
 
+    private long updateTime;
+
     /**
      * 名称
      */

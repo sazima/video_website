@@ -70,6 +70,9 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="videoId != null">
+                #{videoId,jdbcType=INTEGER},
+            </if>
             <if test="videoLinkId != null">
                 #{videoLinkId,jdbcType=INTEGER},
             </if>
