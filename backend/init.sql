@@ -15,12 +15,16 @@ CREATE TABLE video
     type_id1 int(11)      DEFAULT 0 COMMENT '分类1',
     type_id2 int(11)      DEFAULT 0,
     name     varchar(255) DEFAULT '' COMMENT '名称',
+    av     varchar(255) DEFAULT '' COMMENT '名称',
     picture  varchar(255) DEFAULT '' COMMENT '图片',
     content  text COMMENT '简介内容',
     random_id varchar(255)  COMMENT '随机id'    DEFAULT 0,
     update_time int(11) default 0  COMMENT '更新时间'
 );
 
+ALTER TABLE `video` ADD INDEX index_name ( `av` );
+ALTER TABLE `video` ADD INDEX type_id1 ( `type_id1` );
+ALTER TABLE `video` ADD INDEX type_id2 ( `type_id2` );
 CREATE TABLE video_link
 (
     id        int(11) PRIMARY KEY AUTO_INCREMENT,
@@ -29,6 +33,9 @@ CREATE TABLE video_link
     play_name varchar(255) DEFAULT '第一集' COMMENT '选集',
     play_url  varchar(255) DEFAULT '' COMMENT '播放url'
 );
+ALTER TABLE `video_link` ADD INDEX video_id ( `video_id` );
+ALTER TABLE `video_link` ADD INDEX from_name (  `from_name`);
+ALTER TABLE `video_link` ADD INDEX play_name ( `play_name`);
 
 CREATE TABLE video_tanmu
 (
@@ -43,4 +50,7 @@ CREATE TABLE video_tanmu
     content       varchar(255) DEFAULT '' COMMENT '弹幕内容',
     style         varchar(255) DEFAULT '' COMMENT '样式'
 );
-
+ALTER TABLE `video_tanmu` ADD INDEX video_id ( `video_id`  );
+ALTER TABLE `video_tanmu` ADD INDEX from_name (  `from_name`);
+ALTER TABLE `video_tanmu` ADD INDEX play_name (`play_name`);
+ALTER TABLE `video_tanmu` ADD INDEX video_link_id ( `video_link_id`);

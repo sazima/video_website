@@ -33,7 +33,6 @@ def mac_cms_to_tanmu_sring():
         start_time = latest_video.update_time
     else:
         start_time = 1
-
     all_videos = cms_Session.query(MacVod).filter(MacVod.vod_time > start_time).all()  # type:  Sequence[MacVod]
     total = cms_Session.query(MacVod).filter(MacVod.vod_time > start_time).count()
     count = 0
