@@ -114,6 +114,7 @@ export default {
     },
     startPlay(urlName, fromName) {
       this.src = urlName.url
+      console.log('start play _> ', this.src)
       this.playName = urlName.name
       this.fromName = fromName
       document.title = this.videoInfo.name + this.playName

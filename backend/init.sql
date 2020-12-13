@@ -1,3 +1,5 @@
+CREATE  DATABASE tanmu_video DEFAULT charset utf8;
+
 CREATE TABLE type
 (
     id          int(11) PRIMARY KEY AUTO_INCREMENT,
@@ -35,7 +37,7 @@ CREATE TABLE video_tanmu
     from_name varchar(255) DEFAULT '播放地址1' COMMENT '播放来源',
     play_name varchar(255) DEFAULT '第一集' COMMENT '选集',
     play_url  varchar(255) DEFAULT '' COMMENT '播放url',
-    current_time float(5, 2) DEFAULT 0 COMMENT '弹幕时间',
+    `current_time` float(5, 2) DEFAULT 0 COMMENT '弹幕时间',
     current_time_int int(11) DEFAULT 0 COMMENT '时间取整数',
     content       varchar(255) DEFAULT '' COMMENT '弹幕内容',
     style         varchar(255) DEFAULT '' COMMENT '样式'

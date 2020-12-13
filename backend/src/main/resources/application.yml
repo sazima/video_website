@@ -3,24 +3,13 @@ server:
   servlet:
     context-path: /api
 
-
 spring:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/video?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8&useSSL=true
-    username: root
-    password: root
+  profiles:
+    active: dev
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
-
 pagehelper:
   auto-dialect: true
   close-conn: true
 
-logging:
-  level:
-    root: info
-    com.video.tanmu.dao: debug
-  file:
-    name: log/log.log
