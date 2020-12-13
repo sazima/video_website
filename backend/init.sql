@@ -1,4 +1,5 @@
-CREATE  DATABASE tanmu_video DEFAULT charset utf8;
+CREATE  DATABASE tanmu_video DEFAULT charset utf8mb4;
+use tanmu_video;
 
 CREATE TABLE type
 (

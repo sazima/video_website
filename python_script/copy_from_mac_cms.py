@@ -28,7 +28,7 @@ def copy_type():
 
 
 def mac_cms_to_tanmu_sring():
-    latest_video = tanmu_session.query.filter(Video).order_by(Video.update_time.desc()).first()  # type: Video  # 最新的视频
+    latest_video = tanmu_session.query(Video).order_by(Video.update_time.desc()).first()  # type: Video  # 最新的视频
     if latest_video:
         start_time = latest_video.update_time
     else:
