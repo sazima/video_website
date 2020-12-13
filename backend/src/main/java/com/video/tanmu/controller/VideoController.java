@@ -34,5 +34,4 @@ public class VideoController {
     public Response<VideoDetailVo> getDetailByAv(@RequestParam("av") String av) {
         return videoService.getDetailByAv(av);
     }
-
 }

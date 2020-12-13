@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.video.tanmu.dao.VideoLinkDao">
-  <resultMap id="BaseResultMap" type="com.video.tanmu.model.VideoLink">
+  <resultMap id="BaseResultMap" type="com.video.tanmu.model.VideoLinkModel">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="video_id" jdbcType="INTEGER" property="videoId" />
     <result column="from_name" jdbcType="VARCHAR" property="fromName" />
@@ -21,13 +21,13 @@
     delete from video_link
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoLink" useGeneratedKeys="true">
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoLinkModel" useGeneratedKeys="true">
     insert into video_link (video_id, from_name, play_name, 
       play_url)
     values (#{videoId,jdbcType=INTEGER}, #{fromName,jdbcType=VARCHAR}, #{playName,jdbcType=VARCHAR}, 
       #{playUrl,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoLink" useGeneratedKeys="true">
+  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoLinkModel" useGeneratedKeys="true">
     insert into video_link
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="videoId != null">
@@ -58,7 +58,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.video.tanmu.model.VideoLink">
+  <update id="updateByPrimaryKeySelective" parameterType="com.video.tanmu.model.VideoLinkModel">
     update video_link
     <set>
       <if test="videoId != null">
@@ -76,7 +76,7 @@
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.video.tanmu.model.VideoLink">
+  <update id="updateByPrimaryKey" parameterType="com.video.tanmu.model.VideoLinkModel">
     update video_link
     set video_id = #{videoId,jdbcType=INTEGER},
       from_name = #{fromName,jdbcType=VARCHAR},

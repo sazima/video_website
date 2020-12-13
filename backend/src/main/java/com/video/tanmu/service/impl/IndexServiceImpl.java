@@ -2,8 +2,8 @@ package com.video.tanmu.service.impl;
 
 import com.video.tanmu.dao.TypeDao;
 import com.video.tanmu.dao.VideoDao;
-import com.video.tanmu.model.Type;
-import com.video.tanmu.model.Video;
+import com.video.tanmu.model.TypeModel;
+import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.IndexService;
 import com.video.tanmu.utils.ConvertUtils;
@@ -28,20 +28,20 @@ public class IndexServiceImpl implements IndexService {
     @Override
     public Response<IndexTreeVo> getIndexTree() {
         IndexTreeVo indexTreeVo = new IndexTreeVo();
-        List<Type> allType = typeDao.selectAll();
+        List<TypeModel> allTypeModel = typeDao.selectAll();
         List<TypeVo> parentTypeList = new ArrayList<>();
         List<TypeWithVideoListVo> typeWithVideoListVoList = new ArrayList<>();
 
-        for (Type type : allType) {
-            if (!type.getParentType().equals(0)) {
+        for (TypeModel typeModel : allTypeModel) {
+            if (!typeModel.getParentType().equals(0)) {
                  continue;
             }
-            parentTypeList.add(ConvertUtils.copyProperties(type, TypeVo.class));
-            List<Video> videos = videoDao.selectByParentTypeId(type.getId(), 36);
+            parentTypeList.add(ConvertUtils.copyProperties(typeModel, TypeVo.class));
+            List<VideoModel> videoModels = videoDao.selectByTypeId(typeModel.getId(), 36);
             TypeWithVideoListVo typeWithVideoListVo = new TypeWithVideoListVo();
-            typeWithVideoListVo.setTypeId(type.getId());
-            typeWithVideoListVo.setTypeName(type.getName());
-            typeWithVideoListVo.setVideoListVos(ConvertUtils.copyListProperties(videos, VideoListVo.class));
+            typeWithVideoListVo.setTypeId(typeModel.getId());
+            typeWithVideoListVo.setTypeName(typeModel.getName());
+            typeWithVideoListVo.setVideoListVos(ConvertUtils.copyListProperties(videoModels, VideoListVo.class));
             typeWithVideoListVoList.add(typeWithVideoListVo);
         }
         indexTreeVo.setTypeVoList(parentTypeList);

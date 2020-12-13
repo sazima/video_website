@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.video.tanmu.dao.VideoDao">
-    <resultMap id="BaseResultMap" type="com.video.tanmu.model.Video">
+    <resultMap id="BaseResultMap" type="com.video.tanmu.model.VideoModel">
         <id column="id" jdbcType="INTEGER" property="id"/>
         <result column="type_id1" jdbcType="INTEGER" property="typeId1"/>
         <result column="type_id2" jdbcType="INTEGER" property="typeId2"/>
@@ -24,14 +24,14 @@
         FROM video
         WHERE id = #{id,jdbcType=INTEGER}
     </delete>
-    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.Video"
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoModel"
             useGeneratedKeys="true">
         INSERT INTO video (type_id1, type_id2, `name`,
                            picture, content, av)
         VALUES (#{typeId1,jdbcType=INTEGER}, #{typeId2,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
                 #{picture,jdbcType=VARCHAR}, #{content,jdbcType=VARCHAR}, #{av,jdbcType=VARCHAR})
     </insert>
-    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.Video"
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.VideoModel"
             useGeneratedKeys="true">
         insert into video
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -75,7 +75,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.video.tanmu.model.Video">
+    <update id="updateByPrimaryKeySelective" parameterType="com.video.tanmu.model.VideoModel">
         update video
         <set>
             <if test="typeId1 != null">
@@ -99,7 +99,7 @@
         </set>
         where id = #{id,jdbcType=INTEGER}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.video.tanmu.model.Video">
+    <update id="updateByPrimaryKey" parameterType="com.video.tanmu.model.VideoModel">
         UPDATE video
         SET type_id1 = #{typeId1,jdbcType=INTEGER},
             type_id2 = #{typeId2,jdbcType=INTEGER},
@@ -109,10 +109,10 @@
             av       = #{av,jdbcType=VARCHAR}
         WHERE id = #{id,jdbcType=INTEGER}
     </update>
-    <select id="selectByParentTypeId" resultMap="BaseResultMap">
+    <select id="selectByTypeId" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
-        from video WHERE type_id2 = #{parentTypeId} order by id desc limit #{limit}
+        from video WHERE type_id2 = #{typeId} or type_id1 = #{typeId} order by id desc limit #{limit}
     </select>
 
     <select id="selectByQuery" parameterType="com.video.tanmu.param.VideoQueryParam" resultMap="BaseResultMap">

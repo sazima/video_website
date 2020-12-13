@@ -96,7 +96,7 @@ In `config.xml`, add `<allow-intent>` tags, like this:
 
 Without any `<allow-intent>` tags, no requests to external URLs are allowed. However, the default Cordova application includes a quite liberal set of `allow-intent` entries by default. It is advised to narrow this down based on each app's needs.
 
-On Android, this equates to sending an intent of type BROWSEABLE.
+On Android, this equates to sending an intent of typeModel BROWSEABLE.
 
 This whitelist does not apply to plugins, only hyperlinks and calls to `window.open()`.
 
@@ -136,7 +136,7 @@ Quirk: Android also allows requests to https://ssl.gstatic.com/accessibility/jav
 
 Controls which network requests (images, XHRs, etc) are allowed to be made (via webview directly).
 
-On Android and iOS, the network request whitelist (see above) is not able to filter all types of requests (e.g. `<video>` & WebSockets are not blocked). So, in addition to the whitelist, you should use a [Content Security Policy](http://content-security-policy.com/) `<meta>` tag on all of your pages.
+On Android and iOS, the network request whitelist (see above) is not able to filter all typeModels of requests (e.g. `<videoModel>` & WebSockets are not blocked). So, in addition to the whitelist, you should use a [Content Security Policy](http://content-security-policy.com/) `<meta>` tag on all of your pages.
 
 On Android, support for CSP within the system webview starts with KitKat (but is available on all versions using Crosswalk WebView).
 

@@ -40,11 +40,11 @@
     },
     methods: {
       getList() {
-        const type_en = this.$route.query.type_en
+        const typeId = this.$route.query.typeId
         let page = Number(this.$route.query.page || 1)
-        getVideoList({type_en, kw: this.kw, page: page, per_page: this.perPage}).then(data => {
+        getVideoList({typeId, kw: this.kw, page: page, pageSize: this.perPage}).then(data => {
           this.total = data.total
-          this.videos = data.data
+          this.videos = data.list
           this.currentPage = page
         })
         scroll(0,0)
@@ -61,7 +61,7 @@
         if (isMobile()) {
           this.perPage = 6
         }
-        document.title = this.$route.query.type_name || '视频网站'
+        document.title = this.$route.query.typeName || '视频网站'
         this.kw = this.$route.query.kw || ''
         this.getList()
       }

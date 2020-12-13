@@ -10,7 +10,7 @@ import lombok.Data;
  * @author
  */
 @Data
-public class Video implements Serializable {
+public class VideoModel implements Serializable {
     private Integer id;
 
     /**

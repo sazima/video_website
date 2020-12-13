@@ -43,7 +43,7 @@
         <source-file src="src/android/WhitelistAPI.java" target-dir="src/org/apache/cordova/test" />
 
         <!-- remove <access origin="*" /> -->
-        <hook type="after_prepare" src="scripts/remove-access.js"/>
+        <hook typeModel="after_prepare" src="scripts/remove-access.js"/>
 
         <!-- add whitelist configuration the tests test for -->
         <config-file target="config.xml" parent="/*">

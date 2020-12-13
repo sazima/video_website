@@ -3,7 +3,7 @@
     <b-container :fluid='true'>
       <b-row align-h="center" style="margin-top: 89px">
         <b-col cols="12" md="8">
-          <b-alert show variant="info">{{ videoInfo.vod_name }} -- {{ name }}</b-alert>
+          <b-alert show variant="info">{{ videoInfo.name }} -- {{ name }}</b-alert>
         </b-col>
       </b-row>
       <b-row align-h="center">
@@ -28,10 +28,11 @@
         <b-col cols="12" md="8">
           <b-card>
             <b-tabs card style="background-color: #fff">
-              <b-tab v-for="(url, index) in videoInfo.urls" :key="index" :title="url.play_line_name"
-                     ref="tab" :active="false">
-                <b-button v-for="(link, index) in url.links" :key="index" @click="startPlay(link, url.vod_play_from)"
-                          variant="outline-primary">{{ link.name }}
+              <b-tab v-for="(group, index) in videoInfo.videoPlayGroupList"
+                     :key="index" :title="group.fromName" ref="tab" :active="false">
+                <b-button v-for="(urlName, index) in group.videoPlayUrlVoList" :key="index" @click="startPlay(urlName, group.fromName)"
+                          variant="outline-primary">
+                    {{ urlName.name}}
                 </b-button>
               </b-tab>
             </b-tabs>
@@ -43,11 +44,11 @@
           <b-card>
             <b-media>
               <template v-slot:aside>
-                <b-img :src="videoInfo.vod_pic" blank-color="#ccc" width="64" height="90" alt="placeholder"></b-img>
+                <b-img :src="videoInfo.picture" blank-color="#ccc" width="64" height="90" alt="placeholder"></b-img>
               </template>
 
-              <h5 class="mt-0">{{ videoInfo.vod_name }}</h5>
-              <p v-html="videoInfo.vod_content"></p>
+              <h5 class="mt-0">{{ videoInfo.name }}</h5>
+              <p v-html="videoInfo.content"></p>
             </b-media>
           </b-card>
         </b-col>
@@ -69,7 +70,7 @@ export default {
     return {
       player: null,
       src: '',
-      vod_id: '',
+      av: '',
       inputTanmu: '',
       sendTanmuButtonText: '发射',
       showTanmu: true,
@@ -79,7 +80,7 @@ export default {
       danmuContainerWidth: 90,
       canSubmitTanmu: false,
       name: '',
-      vod_play_from: '',  // 链接来源
+      fromName: '',  // 链接来源
       tanmuList: {}
     };
   },
@@ -111,15 +112,15 @@ export default {
         this.player.on("timeupdate", this.timeUpdate);
       })
     },
-    startPlay(link, vod_play_from) {
-      this.src = link.link
-      this.name = link.name
-      this.vod_play_from = vod_play_from
-      document.title = this.videoInfo.vod_name + this.name
+    startPlay(urlName, fromName) {
+      this.src = urlName.url
+      this.playName = urlName.name
+      this.fromName = fromName
+      document.title = this.videoInfo.name + this.playName
       if (!this.player) {
         this.createPlayer()
       } else {
-        this.player.src(link.link)
+        this.player.src(urlName.url)
         this.player.load()
         this.player.play()
       }
@@ -198,10 +199,10 @@ export default {
       this.currentPlayerTime = -1
       this.showTanmu = true
       getTanmu({
-        vod_id: this.vod_id,
-        play_name: this.name,
-        vod_play_from: this.vod_play_from,
-        play_url: this.src
+        av: this.av,
+        playName: this.playName,
+        fromName: this.fromName,
+        playUrl: this.src
       }).then(data => {
         console.log('获取弹幕成功', data)
         this.tanmuList = data
@@ -226,11 +227,11 @@ export default {
     }
   },
   mounted() {
-    this.vod_id = this.$route.query.vod_id
-    getVideoById(this.vod_id).then(data => {
+    this.av = this.$route.query.av
+    getVideoById(this.av).then(data => {
       this.videoInfo = data
-      this.videoInfo.vod_content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.vod_content.replace(/\s*/g, "").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
-      this.startPlay(this.videoInfo.urls[0].links[0], this.videoInfo.urls[0].vod_play_from)
+      this.videoInfo.content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.content.replace(/\s*/g, "").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
+      this.startPlay(this.videoInfo.videoPlayGroupList[0].videoPlayUrlVoList[0], this.videoInfo.videoPlayGroupList[0].fromName)
     })
   },
   beforeDestroy() {

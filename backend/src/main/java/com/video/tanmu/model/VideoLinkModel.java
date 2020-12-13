@@ -4,7 +4,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class VideoLink implements Serializable {
+public class VideoLinkModel implements Serializable {
     private Integer id;
 
     private Integer videoId;

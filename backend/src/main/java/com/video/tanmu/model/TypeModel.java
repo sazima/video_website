@@ -8,7 +8,7 @@ import lombok.Data;
  * @author 
  */
 @Data
-public class Type implements Serializable {
+public class TypeModel implements Serializable {
     private Integer id;
     /**
      * 名称

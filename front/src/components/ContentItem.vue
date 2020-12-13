@@ -3,17 +3,17 @@
         <b-container :fluid='true'>
             <span style="color: #666">
                 <span class="h4">{{title}}</span>
-                <router-link v-if="showMoreButton" :to="{name: 'list', query: {type_en: type_en, type_name: title}}" style="float:right; text-decoration: none; color: #000">&nbsp;更 多 >></router-link>
+                <router-link v-if="showMoreButton" :to="{name: 'list', query: {typeId: typeId, typeName: title}}" style="float:right; text-decoration: none; color: #000">&nbsp;更 多 >></router-link>
             </span>
             <b-row align-h="center">
-                <b-col v-for="(item) in videos" :key="item.vod_id" cols="12" sm="6" lg="2" style="margin-top: 30px"  >
-                    <router-link :to="{name: 'play', query: {vod_id: item.vod_id}}"  target="_blank">
-                        <b-card :img-src="item.vod_pic" img-alt="Image" :img-width="img_width" :img-height="img_width * 271 /196" ref="card">
+                <b-col v-for="(item) in videos" :key="item.av" cols="12" sm="6" lg="2" style="margin-top: 30px"  >
+                    <router-link :to="{name: 'play', query: {av: item.av}}"  target="_blank">
+                        <b-card :img-src="item.picture" img-alt="Image" :img-width="img_width" :img-height="img_width * 271 /196" ref="card">
                             <b-card-text style="height: 50px; overflow: hidden">
-                                {{item.vod_name}}
+                                {{item.name}}
                             </b-card-text>
                             <template v-slot:footer>
-                                <small class="text-muted">{{item.vod_time}}</small>
+                                <small class="text-muted">{{item.updateTime}}</small>
                             </template>
                         </b-card>
                     </router-link>
@@ -27,7 +27,7 @@
 <script>
   export default {
     name: "ContentItem",
-    props: {showMoreButton: Boolean, items: Array, title: String, type_en: String, videos: Array},
+    props: {showMoreButton: Boolean, items: Array, title: String, typeId: String, videos: Array},
     data() {
       return {
         img_width: 196,

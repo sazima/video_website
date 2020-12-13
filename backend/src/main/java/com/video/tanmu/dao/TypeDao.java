@@ -1,8 +1,7 @@
 package com.video.tanmu.dao;
 
-import com.video.tanmu.model.Type;
+import com.video.tanmu.model.TypeModel;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
@@ -10,15 +9,15 @@ import java.util.List;
 public interface TypeDao {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(Type record);
+    int insert(TypeModel record);
 
-    int insertSelective(Type record);
+    int insertSelective(TypeModel record);
 
-    Type selectByPrimaryKey(Integer id);
+    TypeModel selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(Type record);
+    int updateByPrimaryKeySelective(TypeModel record);
 
-    int updateByPrimaryKey(Type record);
+    int updateByPrimaryKey(TypeModel record);
 
-    List<Type> selectAll();
+    List<TypeModel> selectAll();
 }

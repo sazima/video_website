@@ -5,10 +5,10 @@
             <b-row align-h="center">
                 <b-col cols="12" md="10">
                     <content-item
-                            v-for="item in typeItems" :show-more-button="true" :title="item.type_name"
-                            :videos="item.videos"
-                            :type_en="item.type_en"
-                            style="margin-top: 40px" :key="item.type_en"></content-item>
+                            v-for="item in typeVideoItems" :show-more-button="true" :title="item.typeName"
+                            :videos="item.videoListVos"
+                            :typeId="item.typeId"
+                            style="margin-top: 40px" :key="item.typeId"></content-item>
                 </b-col>
             </b-row>
         </b-container>
@@ -28,7 +28,7 @@
     components: {SlideImage, ContentItem},
     data() {
       return {
-        typeItems: [],
+        typeVideoItems: [],
         brand: []
       }
     },
@@ -36,15 +36,15 @@
       document.title = '电影网站'
       let indexTree = await getIndexTree()
       this.brand = indexTree.brand
-      let type_with_video_list = indexTree.type_with_video_list
-      for (let typeItem of type_with_video_list) {
-        this.typeItems.push({
-          type_en: typeItem.type_en,
-          type_name: typeItem.type_name,
-          videos: isMobile() ? typeItem.videos.slice(0, 6) : typeItem.videos
+      let typeWithVideoListVoList = indexTree.typeWithVideoListVoList
+      for (let typeVideoItem of typeWithVideoListVoList) {
+        this.typeVideoItems.push({
+          typeId: typeVideoItem.typeId,
+          typeName: typeVideoItem.typeName,
+          videoListVos: isMobile() ? typeVideoItem.videoListVos.slice(0, 6) : typeVideoItem.videoListVos
         })
       }
-      console.log(this.typeItems);
+      console.log(this.typeVideoItems);
     }
   }
 </script>

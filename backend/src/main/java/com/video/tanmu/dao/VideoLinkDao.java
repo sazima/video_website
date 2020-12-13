@@ -1,6 +1,6 @@
 package com.video.tanmu.dao;
 
-import com.video.tanmu.model.VideoLink;
+import com.video.tanmu.model.VideoLinkModel;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -10,15 +10,18 @@ import java.util.List;
 public interface VideoLinkDao {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(VideoLink record);
+    int insert(VideoLinkModel record);
 
-    int insertSelective(VideoLink record);
+    int insertSelective(VideoLinkModel record);
 
-    VideoLink selectByPrimaryKey(Integer id);
+    VideoLinkModel selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(VideoLink record);
+    int updateByPrimaryKeySelective(VideoLinkModel record);
 
-    int updateByPrimaryKey(VideoLink record);
+    int updateByPrimaryKey(VideoLinkModel record);
 
-    List<VideoLink> selectByVideoId(@Param("videoId") Integer videoId);
+    List<VideoLinkModel> selectByVideoId(@Param("videoId") Integer videoId);
+
+    VideoLinkModel selectByFromAndName(@Param("fromName") String fromName,
+                                       @Param("playUrl")String playUrl);
 }

@@ -1,6 +1,6 @@
 package com.video.tanmu.dao;
 
-import com.video.tanmu.model.Video;
+import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.param.VideoQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -11,19 +11,19 @@ import java.util.List;
 public interface VideoDao {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(Video record);
+    int insert(VideoModel record);
 
-    int insertSelective(Video record);
+    int insertSelective(VideoModel record);
 
-    Video selectByPrimaryKey(Integer id);
+    VideoModel selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(Video record);
+    int updateByPrimaryKeySelective(VideoModel record);
 
-    int updateByPrimaryKey(Video record);
+    int updateByPrimaryKey(VideoModel record);
 
-    List<Video> selectByParentTypeId(@Param("parentTypeId")Integer parentTypeId, @Param("limit") Integer limit);
+    List<VideoModel> selectByTypeId(@Param("typeId")Integer typeId, @Param("limit") Integer limit);
 
-    List<Video> selectByQuery(VideoQueryParam videoQueryParam);
+    List<VideoModel> selectByQuery(VideoQueryParam videoQueryParam);
 
-    Video selectByAv(@Param("av") String av);
+    VideoModel selectByAv(@Param("av") String av);
 }

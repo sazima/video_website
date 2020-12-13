@@ -4,8 +4,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
-import com.video.tanmu.model.Video;
-import com.video.tanmu.model.VideoLink;
+import com.video.tanmu.model.VideoModel;
+import com.video.tanmu.model.VideoLinkModel;
 import com.video.tanmu.param.PageParam;
 import com.video.tanmu.param.VideoQueryParam;
 import com.video.tanmu.result.PageData;
@@ -36,9 +36,9 @@ public class VideoServiceImpl implements VideoService {
     @Override
     public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam) {
         PageHelper.startPage(pageParam.getPage(), pageParam.getPageSize());
-        List<Video> videos = videoDao.selectByQuery(videoQueryParam);
-        long total = ((Page) videos).getTotal();
-        List<VideoListVo> videoListVos = ConvertUtils.copyListProperties(videos, VideoListVo.class);
+        List<VideoModel> videoModels = videoDao.selectByQuery(videoQueryParam);
+        long total = ((Page) videoModels).getTotal();
+        List<VideoListVo> videoListVos = ConvertUtils.copyListProperties(videoModels, VideoListVo.class);
         PageData<VideoListVo> videoPageData = new PageData<>(total, videoListVos);
         return Response.success(videoPageData);
     }
@@ -48,14 +48,14 @@ public class VideoServiceImpl implements VideoService {
         if (StringUtils.isBlank(av)) {
             return Response.fail("请指定av号");
         }
-        Video video = videoDao.selectByAv(av);
-        if (null == video) {
+        VideoModel videoModel = videoDao.selectByAv(av);
+        if (null == videoModel) {
             return Response.fail("视频不存在");
         }
-        List<VideoLink> videoLinks = videoLinkDao.selectByVideoId(video.getId());
+        List<VideoLinkModel> videoLinkModels = videoLinkDao.selectByVideoId(videoModel.getId());
 
-        VideoDetailVo videoDetailVo = ConvertUtils.copyProperties(video, VideoDetailVo.class);
-        List<VideoPlayGroup> videoPlayGroupList = linksToPlayGroup(videoLinks);
+        VideoDetailVo videoDetailVo = ConvertUtils.copyProperties(videoModel, VideoDetailVo.class);
+        List<VideoPlayGroup> videoPlayGroupList = linksToPlayGroup(videoLinkModels);
         videoDetailVo.setVideoPlayGroupList(videoPlayGroupList);
         return Response.success(videoDetailVo);
     }
@@ -63,21 +63,23 @@ public class VideoServiceImpl implements VideoService {
     /**
      * 对播放链接进行分组
      */
-    private List<VideoPlayGroup> linksToPlayGroup(List<VideoLink> videoLinks) {
+    private List<VideoPlayGroup> linksToPlayGroup(List<VideoLinkModel> videoLinkModels) {
         List<VideoPlayGroup> videoPlayGroupList = new ArrayList<>();
 
         HashMap<String, VideoPlayGroup> stringVideoPlayGroupHashMap = new HashMap<>();
 
-        for (VideoLink videoLink : videoLinks) {
-            if (stringVideoPlayGroupHashMap.containsKey(videoLink.getFromName())) {
-                VideoPlayGroup videoPlayGroup = stringVideoPlayGroupHashMap.get(videoLink.getFromName());
-                VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLink.getPlayName(), videoLink.getPlayUrl());
-                videoPlayGroup.getVideoPlayUrlVoList().add(videoPlayUrlVo);
+        for (VideoLinkModel videoLinkModel : videoLinkModels) {
+            if (stringVideoPlayGroupHashMap.containsKey(videoLinkModel.getFromName())) {
+                VideoPlayGroup videoPlayGroup = stringVideoPlayGroupHashMap.get(videoLinkModel.getFromName());
+                VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), videoLinkModel.getPlayUrl());
+//                videoPlayGroup.getVideoPlayUrlVoList().add(videoPlayUrlVo);
             } else {
                 VideoPlayGroup videoPlayGroup = new VideoPlayGroup();
-                videoPlayGroup.setFromName(videoLink.getFromName());
-                stringVideoPlayGroupHashMap.put(videoLink.getFromName(), videoPlayGroup);
-                VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLink.getPlayName(), videoLink.getPlayUrl());
+                videoPlayGroup.setFromName(videoLinkModel.getFromName());
+
+                stringVideoPlayGroupHashMap.put(videoLinkModel.getFromName(), videoPlayGroup);
+
+                VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), videoLinkModel.getPlayUrl());
                 videoPlayGroup.setVideoPlayUrlVoList(Collections.singletonList(videoPlayUrlVo));
                 videoPlayGroupList.add(videoPlayGroup);
             }
