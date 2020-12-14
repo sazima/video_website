@@ -1,6 +1,7 @@
 # Requirement
 
-python 3.9+
+jdk1.8, @vue/cli 4.5.6
+
 
 # demo
 
