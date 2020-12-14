@@ -3,8 +3,10 @@ package com.video.tanmu.result;
 import com.video.tanmu.constants.ResponseCode;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class Response<T> {
+public class Response<T> implements Serializable {
     private Integer code;
     private String msg;
     private T data;

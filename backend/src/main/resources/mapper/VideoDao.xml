@@ -126,19 +126,32 @@
         from video WHERE type_id2 = #{typeId} or type_id1 = #{typeId} order by id desc limit #{limit}
     </select>
 
-    <select id="selectByQuery" parameterType="com.video.tanmu.param.VideoQueryParam" resultMap="BaseResultMap">
+    <select id="selectByQuery"  resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         from video
         <where>
-            <if test="kw != null">
-                name like concat('%', #{kw}, '%')
+            <if test="videoQueryParam.kw != null">
+                and name like concat('%', #{videoQueryParam.kw}, '%')
             </if>
-            <if test="typeId != null">
-                type_id1 = #{typeId} or type_id2 = #{typeId}
+            <if test="videoQueryParam.typeId != null">
+                and type_id1 = #{videoQueryParam.typeId} or type_id2 = #{videoQueryParam.typeId}
             </if>
         </where>
-        order by id desc
+        order by id desc limit #{offset}, #{limit}
+    </select>
+    <select id="selectTotalByQuery" parameterType="com.video.tanmu.param.VideoQueryParam" resultType="int">
+        SELECT
+        count(0)
+        from video
+        <where>
+            <if test="kw != null">
+                and name like concat('%', #{kw}, '%')
+            </if>
+            <if test="typeId != null">
+                and type_id1 = #{typeId} or type_id2 = #{typeId}
+            </if>
+        </where>
     </select>
     <select id="selectByAv" resultMap="BaseResultMap">
         SELECT

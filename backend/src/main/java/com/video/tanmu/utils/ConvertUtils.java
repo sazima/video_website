@@ -6,7 +6,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConvertUtils<T> {
+public class ConvertUtils {
     public static <T> T copyProperties(Object source, Class<T> targetClass) {
         if (source == null) {
             return null;

@@ -16,4 +16,4 @@ logging:
     root: info
     com.video.tanmu.dao: debug
   file:
-    name: log/log.log
+    name: ./tanmu_log.log

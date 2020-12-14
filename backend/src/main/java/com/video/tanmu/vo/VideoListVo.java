@@ -5,11 +5,12 @@ import com.video.tanmu.model.VideoTanmuModel;
 import com.video.tanmu.utils.ConvertUtils;
 import lombok.Data;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Data
-public class VideoListVo {
+public class VideoListVo implements Serializable {
     /**
      * 分类1
      */

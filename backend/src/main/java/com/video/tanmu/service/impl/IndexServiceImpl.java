@@ -6,12 +6,20 @@ import com.video.tanmu.model.TypeModel;
 import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.IndexService;
+import com.video.tanmu.service.VideoService;
 import com.video.tanmu.utils.ConvertUtils;
+import com.video.tanmu.utils.RedisClient;
 import com.video.tanmu.vo.IndexTreeVo;
 import com.video.tanmu.vo.TypeVo;
 import com.video.tanmu.vo.TypeWithVideoListVo;
 import com.video.tanmu.vo.VideoListVo;
+import org.apache.catalina.core.ApplicationContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,9 +33,16 @@ public class IndexServiceImpl implements IndexService {
 
     @Autowired
     private VideoDao videoDao;
+    @Autowired
+    private RedisClient redisClient ;
 
     @Override
     public Response<IndexTreeVo> getIndexTree() {
+        String key = "indexTreeVo";
+        IndexTreeVo indexTreeVoCache = redisClient.get(key, IndexTreeVo.class);
+        if (null != indexTreeVoCache) {
+            return Response.success(indexTreeVoCache);
+        }
         IndexTreeVo indexTreeVo = new IndexTreeVo();
         List<TypeModel> allTypeModel = typeDao.selectAll();
         List<TypeVo> parentTypeList = new ArrayList<>();
@@ -48,6 +63,7 @@ public class IndexServiceImpl implements IndexService {
         }
         indexTreeVo.setTypeVoList(parentTypeList);
         indexTreeVo.setTypeWithVideoListVoList(typeWithVideoListVoList);
+        redisClient.set(key, indexTreeVo);
         return Response.success(indexTreeVo);
     }
 }

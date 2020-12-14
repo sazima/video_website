@@ -1,6 +1,7 @@
 package com.video.tanmu.dao;
 
 import com.video.tanmu.model.VideoModel;
+import com.video.tanmu.param.PageParam;
 import com.video.tanmu.param.VideoQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,7 +24,11 @@ public interface VideoDao {
 
     List<VideoModel> selectByTypeId(@Param("typeId")Integer typeId, @Param("limit") Integer limit);
 
-    List<VideoModel> selectByQuery(VideoQueryParam videoQueryParam);
+    List<VideoModel> selectByQuery(@Param("videoQueryParam") VideoQueryParam videoQueryParam,
+                                   @Param("offset") Integer offset,
+                                   @Param("limit") Integer limit);
+
+    int selectTotalByQuery(VideoQueryParam videoQueryParam);
 
     VideoModel selectByAv(@Param("av") String av);
 }

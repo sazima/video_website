@@ -1,17 +1,16 @@
 package com.video.tanmu.service.impl;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
-import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.model.VideoLinkModel;
+import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.param.PageParam;
 import com.video.tanmu.param.VideoQueryParam;
 import com.video.tanmu.result.PageData;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.VideoService;
 import com.video.tanmu.utils.ConvertUtils;
+import com.video.tanmu.utils.RedisClient;
 import com.video.tanmu.vo.VideoDetailVo;
 import com.video.tanmu.vo.VideoListVo;
 import com.video.tanmu.vo.VideoPlayGroup;
@@ -34,11 +33,19 @@ public class VideoServiceImpl implements VideoService {
     @Autowired
     private VideoLinkDao videoLinkDao;
 
+    @Autowired
+    private RedisClient redisClient ;
+
     @Override
     public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam) {
-        PageHelper.startPage(pageParam.getPage(), pageParam.getPageSize());
-        List<VideoModel> videoModels = videoDao.selectByQuery(videoQueryParam);
-        long total = ((Page) videoModels).getTotal();
+        String totalKey = "kw::" + videoQueryParam.getKw() + "typeId::" + videoQueryParam.getTypeId();
+        Integer total = redisClient.get(totalKey, Integer.class);
+        // total缓存
+        if (null == total) {
+            total = videoDao.selectTotalByQuery(videoQueryParam);
+            redisClient.set(totalKey, total);
+        }
+        List<VideoModel> videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize());
         List<VideoListVo> videoListVos = videoModels.stream().map(VideoListVo::convertFromVideoModel).collect(Collectors.toList());
         PageData<VideoListVo> videoPageData = new PageData<>(total, videoListVos);
         return Response.success(videoPageData);
@@ -46,6 +53,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Response<VideoDetailVo> getDetailByAv(String av) {
+        String key = "videoByAv::" + av;
         if (StringUtils.isBlank(av)) {
             return Response.fail("请指定av号");
         }
@@ -53,11 +61,15 @@ public class VideoServiceImpl implements VideoService {
         if (null == videoModel) {
             return Response.fail("视频不存在");
         }
+        VideoDetailVo videoDetailVoCache = redisClient.get(key, VideoDetailVo.class);
+        if (null != videoDetailVoCache) {
+            return Response.success(videoDetailVoCache);
+        }
         List<VideoLinkModel> videoLinkModels = videoLinkDao.selectByVideoId(videoModel.getId());
-
         VideoDetailVo videoDetailVo = ConvertUtils.copyProperties(videoModel, VideoDetailVo.class);
         List<VideoPlayGroup> videoPlayGroupList = linksToPlayGroup(videoLinkModels);
         videoDetailVo.setVideoPlayGroupList(videoPlayGroupList);
+        redisClient.set(key, videoDetailVo);
         return Response.success(videoDetailVo);
     }
 
