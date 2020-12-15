@@ -1,5 +1,7 @@
 package com.video.tanmu.config;
 
+import com.video.tanmu.utils.SqlStatementInterceptor;
+import org.apache.ibatis.plugin.Interceptor;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.interceptor.KeyGenerator;
@@ -36,4 +38,5 @@ public class RedisConfig extends CachingConfigurerSupport {
         stringRedisTemplate.setConnectionFactory(factory);
         return stringRedisTemplate;
     }
+
 }
