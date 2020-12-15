@@ -1,4 +1,4 @@
-package com.video.tanmu.utils;
+package com.video.tanmu.Redis;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;

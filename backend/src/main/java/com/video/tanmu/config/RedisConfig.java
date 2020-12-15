@@ -1,6 +1,5 @@
 package com.video.tanmu.config;
 
-import com.video.tanmu.utils.SqlStatementInterceptor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
 import org.springframework.cache.annotation.EnableCaching;

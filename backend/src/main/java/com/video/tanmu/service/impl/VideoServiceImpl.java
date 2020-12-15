@@ -1,5 +1,6 @@
 package com.video.tanmu.service.impl;
 
+import com.video.tanmu.Redis.VideoKey;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
 import com.video.tanmu.model.VideoLinkModel;
@@ -10,7 +11,7 @@ import com.video.tanmu.result.PageData;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.VideoService;
 import com.video.tanmu.utils.ConvertUtils;
-import com.video.tanmu.utils.RedisClient;
+import com.video.tanmu.Redis.RedisClient;
 import com.video.tanmu.vo.VideoDetailVo;
 import com.video.tanmu.vo.VideoListVo;
 import com.video.tanmu.vo.VideoPlayGroup;
@@ -38,7 +39,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam) {
-        String totalKey = "kw::" + videoQueryParam.getKw() + "typeId::" + videoQueryParam.getTypeId();
+        String totalKey = VideoKey.getTotalByQueryParam(videoQueryParam);
         Integer total = redisClient.get(totalKey, Integer.class);
         // total缓存
         if (null == total) {
@@ -53,17 +54,17 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Response<VideoDetailVo> getDetailByAv(String av) {
-        String key = "videoByAv::" + av;
+        String key = VideoKey.getVideoByAvKey(av);
         if (StringUtils.isBlank(av)) {
             return Response.fail("请指定av号");
-        }
-        VideoModel videoModel = videoDao.selectByAv(av);
-        if (null == videoModel) {
-            return Response.fail("视频不存在");
         }
         VideoDetailVo videoDetailVoCache = redisClient.get(key, VideoDetailVo.class);
         if (null != videoDetailVoCache) {
             return Response.success(videoDetailVoCache);
+        }
+        VideoModel videoModel = videoDao.selectByAv(av);
+        if (null == videoModel) {
+            return Response.fail("视频不存在");
         }
         List<VideoLinkModel> videoLinkModels = videoLinkDao.selectByVideoId(videoModel.getId());
         VideoDetailVo videoDetailVo = ConvertUtils.copyProperties(videoModel, VideoDetailVo.class);
@@ -85,6 +86,7 @@ public class VideoServiceImpl implements VideoService {
             if (stringVideoPlayGroupHashMap.containsKey(videoLinkModel.getFromName())) {
                 VideoPlayGroup videoPlayGroup = stringVideoPlayGroupHashMap.get(videoLinkModel.getFromName());
                 VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), videoLinkModel.getPlayUrl());
+                videoPlayGroup.getVideoPlayUrlVoList().add(videoPlayUrlVo);
             } else {
                 VideoPlayGroup videoPlayGroup = new VideoPlayGroup();
                 videoPlayGroup.setFromName(videoLinkModel.getFromName());
@@ -92,7 +94,7 @@ public class VideoServiceImpl implements VideoService {
                 stringVideoPlayGroupHashMap.put(videoLinkModel.getFromName(), videoPlayGroup);
 
                 VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), videoLinkModel.getPlayUrl());
-                videoPlayGroup.setVideoPlayUrlVoList(Collections.singletonList(videoPlayUrlVo));
+                videoPlayGroup.setVideoPlayUrlVoList(new ArrayList<>(Collections.singletonList(videoPlayUrlVo)));
                 videoPlayGroupList.add(videoPlayGroup);
             }
         }
