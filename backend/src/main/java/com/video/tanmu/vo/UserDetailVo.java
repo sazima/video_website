@@ -4,10 +4,6 @@ import lombok.Data;
 
 @Data
 public class UserDetailVo {
-    /**
-     * 用户名
-     */
-    private String userName;
 
     /**
      * 昵称

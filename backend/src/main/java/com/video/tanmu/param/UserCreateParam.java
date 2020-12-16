@@ -5,11 +5,6 @@ import lombok.Data;
 @Data
 public class UserCreateParam {
     /**
-     * 用户名
-     */
-    private String userName;
-
-    /**
      * 昵称
      */
     private String nickName;

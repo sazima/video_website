@@ -32,9 +32,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response<Integer> insert(UserCreateParam userCreateParam) {
-        if (StringUtils.isBlank(userCreateParam.getUserName())) {
-            return Response.fail("用户名为空");
-        }
         if (StringUtils.isBlank(userCreateParam.getPassword()) || userCreateParam.getPassword().length() < 6) {
             return Response.fail("密码不符合规则");
         }
@@ -55,6 +52,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response<LoginResponseVo> login(String email, String password) {
         UserModel userModel = userDao.selectByEmail(email);
+        if (null == userModel) {
+            return Response.fail("邮箱或者密码错误");
+        }
         if (!AuthUtils.checkPassWorld(password, userModel.getPassword())) {
             return Response.fail("邮箱或者密码错误");
         }
@@ -62,6 +62,18 @@ public class UserServiceImpl implements UserService {
         String token = UUID.randomUUID().toString().replaceAll("-", "");
         setTokenByUserId(userModel.getId(), token);
         return Response.success(new LoginResponseVo(userDetailVo, token));
+    }
+
+
+    @Override
+    public UserModel getUserByToken(String token) {
+        String key = UserKey.getTokenKey(token);
+        Integer userId = redisClient.get(key, Integer.class);
+        return getUserById(userId);
+    }
+
+    private void deleteTokenByUser(UserModel userModel) {
+
     }
 
     private void setTokenByUserId(Integer userId, String token) {
@@ -74,5 +86,16 @@ public class UserServiceImpl implements UserService {
         } else {
             redisClient.set(UserKey.getTokenListKey(userId), Collections.singleton(token));
         }
+    }
+
+    private UserModel getUserById(Integer userId) {
+        String key = UserKey.getUserByUserIdKey(userId);
+        UserModel userCache = redisClient.get(key, UserModel.class);
+        if (null != userCache) {
+            return userCache;
+        }
+        UserModel userModel = userDao.selectByPrimaryKey(userId);
+        redisClient.set(key, userModel);
+        return userModel;
     }
 }
