@@ -39,6 +39,6 @@ public class UserLoginResolver implements HandlerMethodArgumentResolver {
         if (StringUtils.isBlank(token)) {
             return null;
         }
-        return userService.getUserByToken(token);
+        return userService.getUserAndRefreshToken(token);
     }
 }

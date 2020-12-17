@@ -4,7 +4,7 @@ import com.video.tanmu.Redis.RedisClient;
 import com.video.tanmu.Redis.UserKey;
 import com.video.tanmu.dao.UserDao;
 import com.video.tanmu.model.UserModel;
-import com.video.tanmu.param.UserCreateParam;
+import com.video.tanmu.param.UserRegisterParam;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.UserService;
 import com.video.tanmu.utils.AuthUtils;
@@ -31,9 +31,15 @@ public class UserServiceImpl implements UserService {
     private RedisClient redisClient;
 
     @Override
-    public Response<Integer> insert(UserCreateParam userCreateParam) {
+    public Response<Integer> register(UserRegisterParam userCreateParam) {
+        if (StringUtils.isBlank(userCreateParam.getEmail())){
+            return Response.fail("邮箱不能为空");
+        }
+        if (StringUtils.isBlank(userCreateParam.getNickName())){
+            return Response.fail("昵称不能为空");
+        }
         if (StringUtils.isBlank(userCreateParam.getPassword()) || userCreateParam.getPassword().length() < 6) {
-            return Response.fail("密码不符合规则");
+            return Response.fail("密码太短");
         }
         UserModel userByUserName = userDao.selectByEmail(userCreateParam.getEmail());
         if (null != userByUserName) {
@@ -70,6 +76,18 @@ public class UserServiceImpl implements UserService {
         String key = UserKey.getTokenKey(token);
         Integer userId = redisClient.get(key, Integer.class);
         return getUserById(userId);
+    }
+
+    @Override
+    public UserModel getUserAndRefreshToken(String token) {
+        String key = UserKey.getTokenKey(token);
+        Integer userId = redisClient.get(key, Integer.class);
+        UserModel userById = getUserById(userId);
+        if (null == userById) {
+            return null;
+        }
+        redisClient.set(key, userId);
+        return userById;
     }
 
     private void deleteTokenByUser(UserModel userModel) {

@@ -3,7 +3,7 @@ package com.video.tanmu.param;
 import lombok.Data;
 
 @Data
-public class UserCreateParam {
+public class UserRegisterParam {
     /**
      * 昵称
      */
