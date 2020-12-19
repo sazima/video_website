@@ -7,7 +7,7 @@ import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.IndexService;
 import com.video.tanmu.utils.ConvertUtils;
-import com.video.tanmu.Redis.RedisClient;
+import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.vo.IndexTreeVo;
 import com.video.tanmu.vo.TypeVo;
 import com.video.tanmu.vo.TypeWithVideoListVo;

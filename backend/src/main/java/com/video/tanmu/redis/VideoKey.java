@@ -1,4 +1,4 @@
-package com.video.tanmu.Redis;
+package com.video.tanmu.redis;
 
 import com.video.tanmu.param.VideoQueryParam;
 
@@ -10,4 +10,5 @@ public class VideoKey {
     public static String getTotalByQueryParam(VideoQueryParam videoQueryParam) {
         return "kw::" + videoQueryParam.getKw() + "typeId::" + videoQueryParam.getTypeId();
     }
+
 }

@@ -1,4 +1,4 @@
-package com.video.tanmu.Redis;
+package com.video.tanmu.redis;
 
 public class UserKey {
 

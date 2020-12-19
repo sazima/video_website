@@ -1,6 +1,5 @@
 package com.video.tanmu.config;
 
-import com.video.tanmu.Redis.RedisClient;
 import com.video.tanmu.model.UserModel;
 import com.video.tanmu.service.UserService;
 import org.apache.commons.lang3.StringUtils;

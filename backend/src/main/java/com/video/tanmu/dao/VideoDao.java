@@ -31,4 +31,6 @@ public interface VideoDao {
     int selectTotalByQuery(VideoQueryParam videoQueryParam);
 
     VideoModel selectByAv(@Param("av") String av);
+
+    List<VideoModel> selectByAvList(@Param("avList") List<String> avList);
 }

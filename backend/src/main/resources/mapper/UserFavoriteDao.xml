@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.video.tanmu.dao.UserFavoriteDao">
+    <resultMap id="BaseResultMap" type="com.video.tanmu.model.UserFavoriteModel">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="av" jdbcType="VARCHAR" property="av"/>
+        <result column="video_name" jdbcType="VARCHAR" property="videoName"/>
+        <result column="add_time" jdbcType="INTEGER" property="addTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id
+        , user_id, av, video_name, add_time
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user_favorite
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete
+        from user_favorite
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.UserFavoriteModel"
+            useGeneratedKeys="true">
+        insert into user_favorite (user_id, av, video_name,
+                                   add_time)
+        values (#{userId,jdbcType=INTEGER}, #{av,jdbcType=VARCHAR}, #{videoName,jdbcType=VARCHAR},
+                #{addTime,jdbcType=INTEGER})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.video.tanmu.model.UserFavoriteModel"
+            useGeneratedKeys="true">
+        insert into user_favorite
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="av != null">
+                av,
+            </if>
+            <if test="videoName != null">
+                video_name,
+            </if>
+            <if test="addTime != null">
+                add_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">
+                #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="av != null">
+                #{av,jdbcType=VARCHAR},
+            </if>
+            <if test="videoName != null">
+                #{videoName,jdbcType=VARCHAR},
+            </if>
+            <if test="addTime != null">
+                #{addTime,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.video.tanmu.model.UserFavoriteModel">
+        update user_favorite
+        <set>
+            <if test="userId != null">
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="av != null">
+                av = #{av,jdbcType=VARCHAR},
+            </if>
+            <if test="videoName != null">
+                video_name = #{videoName,jdbcType=VARCHAR},
+            </if>
+            <if test="addTime != null">
+                add_time = #{addTime,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.video.tanmu.model.UserFavoriteModel">
+        update user_favorite
+        set user_id    = #{userId,jdbcType=INTEGER},
+            av         = #{av,jdbcType=VARCHAR},
+            video_name = #{videoName,jdbcType=VARCHAR},
+            add_time   = #{addTime,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <select id="selectAvListByUserId" resultType="java.lang.String">
+        select av
+        from user_favorite
+        where av = #{av}
+        order by add_time desc
+    </select>
+    <delete id="removeByUserIdAndAv">
+        delete
+        from user_favorite
+        where user_id = #{userId}
+          and av = #{av}
+    </delete>
+</mapper>

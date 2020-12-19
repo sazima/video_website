@@ -1,6 +1,6 @@
 package com.video.tanmu.service.impl;
 
-import com.video.tanmu.Redis.VideoKey;
+import com.video.tanmu.redis.VideoKey;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
 import com.video.tanmu.model.VideoLinkModel;
@@ -11,7 +11,7 @@ import com.video.tanmu.result.PageData;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.VideoService;
 import com.video.tanmu.utils.ConvertUtils;
-import com.video.tanmu.Redis.RedisClient;
+import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.vo.VideoDetailVo;
 import com.video.tanmu.vo.VideoListVo;
 import com.video.tanmu.vo.VideoPlayGroup;

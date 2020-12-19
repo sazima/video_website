@@ -27,7 +27,7 @@ def copy_type():
     print('success copy type')
 
 
-def mac_cms_to_tanmu_sring():
+def _mac_cms_to_tanmu_sring():
     latest_video = tanmu_session.query(Video).order_by(Video.update_time.desc()).first()  # type: Video  # 最新的视频
     if latest_video:
         start_time = latest_video.update_time
@@ -75,13 +75,20 @@ def mac_cms_to_tanmu_sring():
                 video_link.video_id = v.vod_id
                 insert_objects.append(video_link)
         insert_objects.append(tanmu_video)
-        if len(insert_objects) > 10000:
+        if len(insert_objects) >= 10:
             tanmu_session.bulk_save_objects(insert_objects)
             tanmu_session.commit()
             insert_objects = list()
     if insert_objects:
         tanmu_session.bulk_save_objects(insert_objects)
         tanmu_session.commit()
+
+
+def mac_cms_to_tanmu_sring():
+    try:
+        _mac_cms_to_tanmu_sring()
+    except Exception:
+        tanmu_session.rollback()
 
 
 def _parse_vod_play_url(play_url: str, vod_play_from: str):

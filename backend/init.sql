@@ -69,12 +69,22 @@ ALTER TABLE `video_tanmu`
 
 CREATE TABLE user
 (
-    id INT(11) PRIMARY KEY AUTO_INCREMENT,
+    id        INT(11) PRIMARY KEY AUTO_INCREMENT,
     nick_name VARCHAR(255) DEFAULT '' COMMENT '昵称',
-    email VARCHAR(255) DEFAULT '' COMMENT '邮箱',
-    picture VARCHAR(255) DEFAULT '' COMMENT '头像',
-    password VARCHAR(255) NOT NULL  COMMENT '密码',
-    add_time int(11) DEFAULT 0,
-    status INT(11) DEFAULT 0 COMMENT '状态'
+    email     VARCHAR(255) DEFAULT '' COMMENT '邮箱',
+    picture   VARCHAR(255) DEFAULT '' COMMENT '头像',
+    password  VARCHAR(255) NOT NULL COMMENT '密码',
+    add_time  int(11)      DEFAULT 0,
+    status    INT(11)      DEFAULT 0 COMMENT '状态'
 
 );
+
+# 用户收藏
+create table user_favorite
+(
+    id         INT(11) PRIMARY KEY AUTO_INCREMENT,
+    user_id    int(11) not null comment '用户id',
+    av   varchar(255) not null comment '视频av号码',
+    video_name varchar(255) default '' comment '视频名称',
+    add_time int(11) default 0 comment '收藏时间'
+)

@@ -157,6 +157,13 @@
         SELECT
         <include refid="Base_Column_List"/>
         from video WHERE av = #{av}
-
+    </select>
+    <select id="selectByAvList" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from video WHERE av in
+        <foreach item="item" index="index" collection="avList" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
 </mapper>
