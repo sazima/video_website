@@ -146,7 +146,8 @@ export default {
         location.reload()
       })
     },
-    login() {
+    login(bvModalEvt) {
+      bvModalEvt.preventDefault()
       login(this.loginForm).then(res => {
         console.log(res, 'success');
         toast('登录成功', 'success')
@@ -161,10 +162,11 @@ export default {
         setToken(this.userInfo)
       }).catch(err => {
         console.log(err);
-        this.$bvModal.show('loginModal')
+        // this.$bvModal.show('loginModal')
       })
     },
     register(bvModalEvt) {
+      bvModalEvt.preventDefault()
       if (!this.validateConfirmPassword || !this.validationNickName || !this.validationEmail) {
         bvModalEvt.preventDefault()
         return
@@ -172,10 +174,10 @@ export default {
       registerUser(this.registerForm).then(res => {
         console.log(res);
         toast('注册成功，  请点击登录', 'success')
+        this.$bvModal.hide('registerModal')
         this.$bvModal.show('loginModal')
       }).catch(err => {
         console.log(err);
-        this.$bvModal.show('registerModal')
       })
     },
     showRegisterModal() {
@@ -186,11 +188,19 @@ export default {
       cleanToken()
       this.userInfo = null
     },
+    getTypes() {
+      const allType = sessionStorage.getItem('allType')
+      if (allType) {
+        return this.parseTypeList(JSON.parse(allType))
+      }
+      getTypes().then(allType => {
+        sessionStorage.setItem('allType', JSON.stringify(allType))
+        this.parseTypeList(allType)
+      })
+    }
   },
   mounted() {
-    getTypes().then(all_type => {
-      this.parseTypeList(all_type)
-    })
+    this.getTypes()
     if (!this.userInfo) {
       const userInfo = getUserInfo()
       if (userInfo) {
