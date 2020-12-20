@@ -1,14 +1,15 @@
+import traceback
 import uuid
-from typing import Sequence
+from typing import Sequence, Dict, List
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from video_models import MacVod, MacType
 from tanmu_models import Video, VideoLink, Type
 
 # cms 数据库
-cms_engine = create_engine('mysql+pymysql://root:123@127.0.0.1:13306/video')
+cms_engine = create_engine('mysql+pymysql://root:root@raspberrypi:3306/video')
 # 弹幕应用数据库
-tanmu_engine = create_engine('mysql+pymysql://root:123@127.0.0.1:13306/tanmu_video')
+tanmu_engine = create_engine('mysql+pymysql://root:root@raspberrypi:3306/tanmu_video')
 cms_Session = scoped_session(sessionmaker(bind=cms_engine))
 tanmu_session = scoped_session(sessionmaker(bind=tanmu_engine))
 
@@ -33,22 +34,27 @@ def _mac_cms_to_tanmu_sring():
         start_time = latest_video.update_time
     else:
         start_time = 1
-    all_videos = cms_Session.query(MacVod).filter(MacVod.vod_time > start_time).all()  # type:  Sequence[MacVod]
+
+    all_new_update_videos = cms_Session.query(MacVod).filter(MacVod.vod_time > start_time).all()  # type:  Sequence[MacVod]  # maccms 中新更新的视频
+    new_in_tanmu = tanmu_session.query(Video).filter(Video.id.in_([x.vod_id for x in all_new_update_videos]))  # tanmuapp中 新更新的视频
+    new_in_tanmu_dict = {x.id: x for x in new_in_tanmu}  # type: Dict[int, Video]
+
     total = cms_Session.query(MacVod).filter(MacVod.vod_time > start_time).count()
     count = 0
-    insert_objects = []
-    for v in all_videos:
+    insert_objects = []  # 插入内容
+    delete_video_link_vid = []  # type: List[int]  # 删除内容
+    for v in all_new_update_videos:
         count += 1
-        print(f"{count}/{total}, {v.vod_name}")
-        tanmu_video = tanmu_session.query(Video).filter(Video.id == v.vod_id).first()  # type: Video
+        tanmu_video = new_in_tanmu_dict.get(v.vod_id)
         if tanmu_video:
-            print(f"exists")
             if tanmu_video.update_time == v.vod_time:
-                print(f"continue")
+                print(f"{count}/{total}, 忽略： {v.vod_name}")
                 continue
             else:
-                tanmu_session.query(VideoLink).filter(VideoLink.video_id == v.vod_id).delete()
+                print(f"{count}/{total}, 更新： {v.vod_name}")
+                delete_video_link_vid.append(v.vod_id)
         else:
+            print(f"{count}/{total}, 添加： {v.vod_name}")
             tanmu_video = Video()
             tanmu_video.id = v.vod_id
             tanmu_video.av = uuid.uuid4().hex
@@ -75,11 +81,14 @@ def _mac_cms_to_tanmu_sring():
                 video_link.video_id = v.vod_id
                 insert_objects.append(video_link)
         insert_objects.append(tanmu_video)
-        if len(insert_objects) >= 10:
+        if len(insert_objects) >= 100:
+            tanmu_session.query(VideoLink).filter(VideoLink.video_id.in_(delete_video_link_vid)).delete(synchronize_session=False)
             tanmu_session.bulk_save_objects(insert_objects)
             tanmu_session.commit()
             insert_objects = list()
+            delete_video_link_vid = list()
     if insert_objects:
+        tanmu_session.query(VideoLink).filter(VideoLink.video_id.in_(delete_video_link_vid)).delete(synchronize_session=False)
         tanmu_session.bulk_save_objects(insert_objects)
         tanmu_session.commit()
 
@@ -87,8 +96,9 @@ def _mac_cms_to_tanmu_sring():
 def mac_cms_to_tanmu_sring():
     try:
         _mac_cms_to_tanmu_sring()
-    except Exception:
+    except Exception as e:
         tanmu_session.rollback()
+        print(traceback.format_exc())
 
 
 def _parse_vod_play_url(play_url: str, vod_play_from: str):
@@ -125,5 +135,5 @@ def _parse_vod_play_url(play_url: str, vod_play_from: str):
 
 
 if __name__ == '__main__':
-    copy_type()
+    # copy_type()
     mac_cms_to_tanmu_sring()
