@@ -1,0 +1,8 @@
+server:
+  port: 8889
+
+zuul:
+  routes:
+    api:
+      path: /proxy/**
+      url: http://www.google.com
