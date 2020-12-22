@@ -5,4 +5,12 @@ zuul:
   routes:
     api:
       path: /video_proxy/**
-      url: http://www.google.com
+      url: http://www.google.como
+  ssl-hostname-validation-enabled: false
+
+
+logging:
+  level:
+    root: info
+  file:
+    name: /tmp/video_proxy.log

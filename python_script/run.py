@@ -3,8 +3,8 @@ import uuid
 from typing import Sequence, Dict, List
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from video_models import MacVod, MacType
-from tanmu_models import Video, VideoLink, Type
+from model.video_models import MacVod, MacType
+from model.tanmu_models import Video, VideoLink, Type
 
 # cms 数据库
 cms_engine = create_engine('mysql+pymysql://root:root@raspberrypi:3306/video')

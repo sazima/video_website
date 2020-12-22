@@ -1,5 +1,6 @@
 package com.video.tanmu.vo;
 
+import com.video.tanmu.constants.Constants;
 import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.model.VideoTanmuModel;
 import com.video.tanmu.utils.ConvertUtils;
@@ -42,6 +43,9 @@ public class VideoListVo implements Serializable {
         VideoListVo videoListVo = ConvertUtils.copyProperties(videoModel, VideoListVo.class);
         String dateString = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format (videoModel.getUpdateTime() * 1000);
         videoListVo.setUpdateTime(dateString);
+//        if (videoModel.getPicture().startsWith("http:")) {
+        videoListVo.setPicture(Constants.PROXY_SERVER_PREFIX + videoModel.getPicture());
+//        }
         return videoListVo;
     }
 
