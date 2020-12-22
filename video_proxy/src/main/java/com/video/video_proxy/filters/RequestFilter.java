@@ -10,9 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class SimpleFilter extends ZuulFilter {
+public class RequestFilter extends ZuulFilter {
 
-    private static Logger log = LoggerFactory.getLogger(SimpleFilter.class);
+    private static Logger log = LoggerFactory.getLogger(RequestFilter.class);
 
     @Override
     public String filterType() {
@@ -34,9 +34,10 @@ public class SimpleFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
-        String servletPath = request.getServletPath();
+//        String url = UrlUtils.getProxyUrlFromRequest(request);
+        String url = request.getParameter("url");
+        log.info("request url " + url);
         // todo 验证
-        String url = servletPath.replaceAll("/proxy/", "").replaceAll("//", "/").replaceAll("https:/", "https://").replaceAll("http:/", "http://");
         if (!url.startsWith("http")) {
             throw new Exception("xxx");
         }

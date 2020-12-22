@@ -4,5 +4,5 @@ server:
 zuul:
   routes:
     api:
-      path: /proxy/**
+      path: /video_proxy/**
       url: http://www.google.com

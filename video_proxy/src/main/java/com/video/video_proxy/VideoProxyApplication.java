@@ -1,6 +1,7 @@
 package com.video.video_proxy;
 
-import com.video.video_proxy.filters.SimpleFilter;
+import com.video.video_proxy.filters.ResponseFilter;
+import com.video.video_proxy.filters.RequestFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
@@ -15,7 +16,12 @@ public class VideoProxyApplication {
 	}
 
 	@Bean
-	public SimpleFilter simpleFilter() {
-		return new SimpleFilter();
+	public RequestFilter simpleFilter() {
+		return new RequestFilter();
+	}
+
+	@Bean
+	public ResponseFilter responseFilter() {
+		return new ResponseFilter();
 	}
 }

@@ -13,7 +13,7 @@ public class UserFavoriteController {
     @RequestMapping("/add")
     @ResponseBody
     public Response<Integer> addFavoriteVideo(UserModel userModel) {
-
+        return null;
     }
 
 }
