@@ -26,7 +26,8 @@ public interface VideoDao {
 
     List<VideoModel> selectByQuery(@Param("videoQueryParam") VideoQueryParam videoQueryParam,
                                    @Param("offset") Integer offset,
-                                   @Param("limit") Integer limit);
+                                   @Param("limit") Integer limit,
+                                   @Param("exceptTypeList") List<Integer>exceptTypeList);
 
     int selectTotalByQuery(VideoQueryParam videoQueryParam);
 

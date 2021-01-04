@@ -135,7 +135,17 @@
                 and name like concat('%', #{videoQueryParam.kw}, '%')
             </if>
             <if test="videoQueryParam.typeId != null">
-                and type_id1 = #{videoQueryParam.typeId} or type_id2 = #{videoQueryParam.typeId}
+                and (type_id1 = #{videoQueryParam.typeId} or type_id2 = #{videoQueryParam.typeId})
+            </if>
+            <if test="exceptTypeList != null">
+               and type_id2 not in
+                <foreach item="item" index="index" collection="exceptTypeList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+                and type_id1 not in
+                <foreach item="item" index="index" collection="exceptTypeList" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
             </if>
         </where>
         order by id desc limit #{offset}, #{limit}

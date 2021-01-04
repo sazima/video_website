@@ -1,8 +1,10 @@
 package com.video.tanmu.service.impl;
 
+import com.video.tanmu.constants.Constants;
 import com.video.tanmu.dao.TypeDao;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.model.TypeModel;
+import com.video.tanmu.model.UserModel;
 import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.IndexService;
@@ -27,36 +29,45 @@ public class IndexServiceImpl implements IndexService {
     @Autowired
     private VideoDao videoDao;
     @Autowired
-    private RedisClient redisClient ;
+    private RedisClient redisClient;
 
     @Override
-    public Response<IndexTreeVo> getIndexTree() {
+    public Response<IndexTreeVo> getIndexTree(UserModel userModel) {
         String key = "indexTreeVo";
-        IndexTreeVo indexTreeVoCache = redisClient.get(key, IndexTreeVo.class);
-        if (null != indexTreeVoCache) {
-            return Response.success(indexTreeVoCache);
-        }
-        IndexTreeVo indexTreeVo = new IndexTreeVo();
-        List<TypeModel> allTypeModel = typeDao.selectAll();
-        List<TypeVo> parentTypeList = new ArrayList<>();
-        List<TypeWithVideoListVo> typeWithVideoListVoList = new ArrayList<>();
-
-        for (TypeModel typeModel : allTypeModel) {
-            if (!typeModel.getParentType().equals(0)) {
-                 continue;
+        IndexTreeVo indexTreeVo = redisClient.get(key, IndexTreeVo.class);
+        if (null == indexTreeVo) {
+            indexTreeVo = new IndexTreeVo();
+            List<TypeModel> allTypeModel = typeDao.selectAll();
+            List<TypeVo> parentTypeList = new ArrayList<>();
+            List<TypeWithVideoListVo> typeWithVideoListVoList = new ArrayList<>();
+            for (TypeModel typeModel : allTypeModel) {
+                if (!typeModel.getParentType().equals(0)) {
+                    continue;
+                }
+                parentTypeList.add(ConvertUtils.copyProperties(typeModel, TypeVo.class));
+                List<VideoModel> videoModels = videoDao.selectByTypeId(typeModel.getId(), 18);
+                TypeWithVideoListVo typeWithVideoListVo = new TypeWithVideoListVo();
+                typeWithVideoListVo.setTypeId(typeModel.getId());
+                typeWithVideoListVo.setTypeName(typeModel.getName());
+                List<VideoListVo> videoListVos = videoModels.stream().map(VideoListVo::convertFromVideoModel).collect(Collectors.toList());
+                typeWithVideoListVo.setVideoListVos(videoListVos);
+                typeWithVideoListVoList.add(typeWithVideoListVo);
             }
-            parentTypeList.add(ConvertUtils.copyProperties(typeModel, TypeVo.class));
-            List<VideoModel> videoModels = videoDao.selectByTypeId(typeModel.getId(), 18);
-            TypeWithVideoListVo typeWithVideoListVo = new TypeWithVideoListVo();
-            typeWithVideoListVo.setTypeId(typeModel.getId());
-            typeWithVideoListVo.setTypeName(typeModel.getName());
-            List<VideoListVo> videoListVos = videoModels.stream().map(VideoListVo::convertFromVideoModel).collect(Collectors.toList());
-            typeWithVideoListVo.setVideoListVos(videoListVos);
-            typeWithVideoListVoList.add(typeWithVideoListVo);
+            indexTreeVo.setTypeVoList(parentTypeList);
+            indexTreeVo.setTypeWithVideoListVoList(typeWithVideoListVoList);
+            redisClient.set(key, indexTreeVo);
         }
-        indexTreeVo.setTypeVoList(parentTypeList);
-        indexTreeVo.setTypeWithVideoListVoList(typeWithVideoListVoList);
-        redisClient.set(key, indexTreeVo);
+        if (null != userModel) {
+            return Response.success(indexTreeVo);
+        }
+        // 未登录用户显示一部分
+        List<TypeWithVideoListVo> disPlayTypeListVo = new ArrayList<>();
+        for (TypeWithVideoListVo typeWithVideoListVo : indexTreeVo.getTypeWithVideoListVoList()) {
+            if (!Constants.needLoginTypeId.contains(typeWithVideoListVo.getTypeId())) {
+                disPlayTypeListVo.add(typeWithVideoListVo);
+            }
+        }
+        indexTreeVo.setTypeWithVideoListVoList(disPlayTypeListVo);
         return Response.success(indexTreeVo);
     }
 }

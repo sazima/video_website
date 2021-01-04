@@ -1,5 +1,7 @@
 package com.video.tanmu.service.impl;
 
+import com.video.tanmu.constants.Constants;
+import com.video.tanmu.model.UserModel;
 import com.video.tanmu.redis.VideoKey;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
@@ -35,10 +37,10 @@ public class VideoServiceImpl implements VideoService {
     private VideoLinkDao videoLinkDao;
 
     @Autowired
-    private RedisClient redisClient ;
+    private RedisClient redisClient;
 
     @Override
-    public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam) {
+    public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam, UserModel userModel) {
         String totalKey = VideoKey.getTotalByQueryParam(videoQueryParam);
         Integer total = redisClient.get(totalKey, Integer.class);
         // total缓存
@@ -46,7 +48,12 @@ public class VideoServiceImpl implements VideoService {
             total = videoDao.selectTotalByQuery(videoQueryParam);
             redisClient.set(totalKey, total);
         }
-        List<VideoModel> videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize());
+        List<VideoModel> videoModels = null;
+        if (null == userModel) {
+            videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize(), Constants.needLoginTypeId);
+        } else {
+            videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize(), null);
+        }
         List<VideoListVo> videoListVos = videoModels.stream().map(VideoListVo::convertFromVideoModel).collect(Collectors.toList());
         PageData<VideoListVo> videoPageData = new PageData<>(total, videoListVos);
         return Response.success(videoPageData);

@@ -1,5 +1,6 @@
 package com.video.tanmu.controller;
 
+import com.video.tanmu.model.UserModel;
 import com.video.tanmu.param.PageParam;
 import com.video.tanmu.param.VideoQueryParam;
 import com.video.tanmu.result.PageData;
@@ -22,11 +23,11 @@ public class VideoController {
 
     @RequestMapping("/pageByQuery")
     @ResponseBody
-    public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam) {
+    public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam, UserModel userModel) {
         if (StringUtils.isBlank(videoQueryParam.getKw())) {
             videoQueryParam.setKw(null);
         }
-        return videoService.pageByQuery(videoQueryParam, pageParam);
+        return videoService.pageByQuery(videoQueryParam, pageParam, userModel);
     }
 
     @RequestMapping("/detail")

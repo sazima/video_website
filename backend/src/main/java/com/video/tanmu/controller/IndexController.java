@@ -1,5 +1,6 @@
 package com.video.tanmu.controller;
 
+import com.video.tanmu.model.UserModel;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.IndexService;
 import com.video.tanmu.vo.IndexTreeVo;
@@ -16,7 +17,7 @@ public class IndexController {
 
     @RequestMapping("/indexTree")
     @ResponseBody
-    public Response<IndexTreeVo> getIndexTree() {
-        return indexService.getIndexTree();
+    public Response<IndexTreeVo> getIndexTree(UserModel userModel) {
+        return indexService.getIndexTree(userModel);
     }
 }
