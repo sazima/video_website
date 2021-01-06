@@ -208,6 +208,7 @@ export default {
       const userInfo = getUserInfo()
       if (userInfo) {
         this.checkLogin().then(res => {
+          console.log(res);
           this.userInfo = userInfo
         }).catch(err => {
           console.log(err);
