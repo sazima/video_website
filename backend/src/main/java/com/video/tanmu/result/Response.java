@@ -18,7 +18,7 @@ public class Response<T> implements Serializable {
         this.msg = responseCode.getMsg();
     }
 
-    Response(ResponseCode responseCode){
+    public Response(ResponseCode responseCode){
         this.code = responseCode.getCode();
         this.msg = responseCode.getMsg();
     }

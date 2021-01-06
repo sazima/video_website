@@ -23,7 +23,7 @@
 <script>
   import ContentItem from "../components/ContentItem";
   import {getVideoList} from "../apis/video";
-  import {isMobile} from "../utils/utils";
+  import {isMobile, toast} from "../utils/utils";
 
 
   export default {
@@ -46,6 +46,9 @@
           this.total = data.total
           this.videos = data.list
           this.currentPage = page
+          if (this.total === 0){
+            toast("没有查询到内容")
+          }
         })
         scroll(0,0)
       },

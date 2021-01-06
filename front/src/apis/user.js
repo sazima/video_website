@@ -7,5 +7,10 @@ async function registerUser(data) {
     const url = '/user/register'
     return request.post(url, data)
 }
-export {login, registerUser }
+async function getLoginStatus() {
+    const url = '/user/loginStatus'
+    return request.get(url)
+
+}
+export {login, registerUser, getLoginStatus}
 

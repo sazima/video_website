@@ -1,8 +1,6 @@
 import axios from 'axios'
-// import {MessageBox, Message} from 'element-ui'
-import store from '@/store'
 import {aes_decrypt, toast} from "@/utils/utils";
-// import {getToken} from '@/utils/auth'
+import {cleanToken, getUserInfo} from '@/utils/authUtils'
 
 // create an axios instance
 const request = axios.create({
@@ -12,9 +10,9 @@ const request = axios.create({
 
 request.interceptors.request.use(
     config => {
-
-        if (store.getters.token) {
-            // config.headers['X-Token'] = getToken()
+        let userInfo = getUserInfo()
+        if (userInfo) {
+            config.headers['token'] = getUserInfo().token
         }
         return config
     },
@@ -45,6 +43,9 @@ request.interceptors.response.use(
 
         // if the custom code is not 20000, it is judged as an error.
         if (res.code !== 200) {
+            if (res.code === 402){
+                cleanToken()
+            }
             toast(res.msg)
             return Promise.reject(new Error(res.msg))
         } else {

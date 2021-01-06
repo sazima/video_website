@@ -70,7 +70,6 @@ public class UserServiceImpl implements UserService {
         return Response.success(new LoginResponseVo(userDetailVo, token));
     }
 
-
     @Override
     public UserModel getUserByToken(String token) {
         String key = UserKey.getTokenKey(token);
@@ -82,6 +81,9 @@ public class UserServiceImpl implements UserService {
     public UserModel getUserAndRefreshToken(String token) {
         String key = UserKey.getTokenKey(token);
         Integer userId = redisClient.get(key, Integer.class);
+        if (userId == null) {
+            return null;
+        }
         UserModel userById = getUserById(userId);
         if (null == userById) {
             return null;

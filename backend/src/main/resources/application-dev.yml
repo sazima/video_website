@@ -6,13 +6,13 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/tanmu_video?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://raspberrypi:3306/tanmu_video?useUnicode=true&characterEncoding=utf8
     username: root
     password: root
 
   redis:
     port: 6379
-    host: 127.0.0.1
+    host: raspberrypi
     database: 1
     prefix: 'tanmu::'
     expired-seconds: 72000

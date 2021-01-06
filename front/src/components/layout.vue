@@ -99,7 +99,7 @@
 <script>
 import {getTypes} from '../apis/video'
 import {cleanToken, getUserInfo, setToken} from "@/utils/authUtils";
-import {login, registerUser} from "@/apis/user";
+import {getLoginStatus, login, registerUser} from "@/apis/user";
 import {toast} from "@/utils/utils";
 
 export default {
@@ -197,6 +197,9 @@ export default {
         sessionStorage.setItem('allType', JSON.stringify(allType))
         this.parseTypeList(allType)
       })
+    },
+    checkLogin(){
+      getLoginStatus()
     }
   },
   mounted() {
@@ -204,7 +207,11 @@ export default {
     if (!this.userInfo) {
       const userInfo = getUserInfo()
       if (userInfo) {
-        this.userInfo = userInfo
+        this.checkLogin().then(res => {
+          this.userInfo = userInfo
+        }).catch(err => {
+          console.log(err);
+        })
       }
     }
   },
