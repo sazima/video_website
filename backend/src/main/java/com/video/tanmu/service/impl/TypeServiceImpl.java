@@ -2,10 +2,10 @@ package com.video.tanmu.service.impl;
 
 import com.video.tanmu.dao.TypeDao;
 import com.video.tanmu.model.TypeModel;
+import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.TypeService;
 import com.video.tanmu.utils.ConvertUtils;
-import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.vo.TypeVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

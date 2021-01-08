@@ -1,7 +1,6 @@
 package com.video.tanmu.dao;
 
 import com.video.tanmu.model.VideoModel;
-import com.video.tanmu.param.PageParam;
 import com.video.tanmu.param.VideoQueryParam;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

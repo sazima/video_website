@@ -1,10 +1,10 @@
 package com.video.tanmu.service.impl;
 
-import com.video.tanmu.redis.RedisClient;
-import com.video.tanmu.redis.UserKey;
 import com.video.tanmu.dao.UserDao;
 import com.video.tanmu.model.UserModel;
 import com.video.tanmu.param.UserRegisterParam;
+import com.video.tanmu.redis.RedisClient;
+import com.video.tanmu.redis.UserKey;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.UserService;
 import com.video.tanmu.utils.AuthUtils;

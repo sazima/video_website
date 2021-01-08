@@ -1,15 +1,15 @@
 package com.video.tanmu.service.impl;
 
-import com.video.tanmu.constants.Constants;
 import com.video.tanmu.dao.TypeDao;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.model.TypeModel;
 import com.video.tanmu.model.UserModel;
 import com.video.tanmu.model.VideoModel;
+import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.result.Response;
+import com.video.tanmu.service.ConfigService;
 import com.video.tanmu.service.IndexService;
 import com.video.tanmu.utils.ConvertUtils;
-import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.vo.IndexTreeVo;
 import com.video.tanmu.vo.TypeVo;
 import com.video.tanmu.vo.TypeWithVideoListVo;
@@ -30,6 +30,9 @@ public class IndexServiceImpl implements IndexService {
     private VideoDao videoDao;
     @Autowired
     private RedisClient redisClient;
+
+    @Autowired
+    private ConfigService configService;
 
     @Override
     public Response<IndexTreeVo> getIndexTree(UserModel userModel) {
@@ -62,8 +65,10 @@ public class IndexServiceImpl implements IndexService {
         }
         // 未登录用户显示一部分
         List<TypeWithVideoListVo> disPlayTypeListVo = new ArrayList<>();
+
+        List<Integer> noLoginTypeId = configService.getNoLoginTypeId();
         for (TypeWithVideoListVo typeWithVideoListVo : indexTreeVo.getTypeWithVideoListVoList()) {
-            if (!Constants.needLoginTypeId.contains(typeWithVideoListVo.getTypeId())) {
+            if (!noLoginTypeId.contains(typeWithVideoListVo.getTypeId())) {
                 disPlayTypeListVo.add(typeWithVideoListVo);
             }
         }

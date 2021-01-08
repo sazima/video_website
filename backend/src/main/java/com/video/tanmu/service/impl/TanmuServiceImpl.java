@@ -8,18 +8,18 @@ import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.model.VideoTanmuModel;
 import com.video.tanmu.param.TanmuInsertParam;
 import com.video.tanmu.param.TanmuQueryParam;
+import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.result.Response;
+import com.video.tanmu.service.ConfigService;
 import com.video.tanmu.service.TanmuService;
 import com.video.tanmu.utils.ConvertUtils;
+import com.video.tanmu.utils.RequestUtils;
 import com.video.tanmu.vo.VideoTanmuVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class TanmuServiceImpl implements TanmuService {
@@ -31,6 +31,11 @@ public class TanmuServiceImpl implements TanmuService {
 
     @Autowired
     private VideoDao videoDao;
+
+    @Autowired
+    private ConfigService configService;
+    @Autowired
+    private RedisClient redisClient;
 
     @Override
     public Response<Map<Integer, List<VideoTanmuVo>>> selectByVideo(TanmuQueryParam queryParam) {
@@ -48,8 +53,19 @@ public class TanmuServiceImpl implements TanmuService {
             return Response.fail("视频不存在");
         }
         Map<Integer, List<VideoTanmuVo>> tanmuMap = new HashMap<>();
-        tanmuMap.put(1, Collections.singletonList(new VideoTanmuVo("发送一条弹幕试试吧!!", 1.5, 1)));
-        tanmuMap.put(2, Collections.singletonList(new VideoTanmuVo("弹幕有你更精彩", 2.5, 2)));
+        // 随机弹幕
+        List<String> messageList = new ArrayList<>(configService.getRandomTanmuList());
+        if (messageList.size() > 0) {
+            tanmuMap.put(1, new ArrayList<>(Collections.singletonList(new VideoTanmuVo("前 30 秒系统自动发送 996 警告, 30 秒后恢复正常", 1.5, 1))));
+            tanmuMap.put(4, new ArrayList<>(Collections.singletonList(new VideoTanmuVo("前 30 秒系统自动发送 996 警告, 30 秒后恢复正常", 4.5, 4))));
+            for (int i = 5; i<=30; i+=2) {
+                if (messageList.size() == 0) {
+                    break;
+                }
+                tanmuMap.put(i, new ArrayList<>(Collections.singletonList(new VideoTanmuVo(messageList.remove(new Random().nextInt(messageList.size())), 0.5 + i, i))));
+            }
+        }
+        // 视频弹幕
         List<VideoTanmuModel> videoTanmusModels = videoTanmuDao.selectByVideo(videoModel.getId(), queryParam.getFromName(), queryParam.getPlayName());
         for (VideoTanmuModel tanmu : videoTanmusModels) {
             VideoTanmuVo tanmuVo = ConvertUtils.copyProperties(tanmu, VideoTanmuVo.class);
@@ -85,6 +101,9 @@ public class TanmuServiceImpl implements TanmuService {
         if (null == videoLinkModel) {
             return Response.fail("没有该视频选集");
         }
+        if (!RequestUtils.checkFrequency(1, 10)) {
+            return Response.fail("你太快了");
+        }
         VideoTanmuModel videoTanmuModel = new VideoTanmuModel();
         videoTanmuModel.setVideoId(videoModel.getId());
         videoTanmuModel.setContent(tanmuInsertParam.getContent());
@@ -97,4 +116,6 @@ public class TanmuServiceImpl implements TanmuService {
         int inserted = videoTanmuDao.insertSelective(videoTanmuModel);
         return Response.success(inserted);
     }
+
+
 }

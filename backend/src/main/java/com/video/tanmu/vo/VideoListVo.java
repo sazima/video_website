@@ -1,15 +1,13 @@
 package com.video.tanmu.vo;
 
-import com.video.tanmu.constants.Constants;
+import com.video.tanmu.config.SpringContext;
 import com.video.tanmu.model.VideoModel;
-import com.video.tanmu.model.VideoTanmuModel;
+import com.video.tanmu.service.ConfigService;
 import com.video.tanmu.utils.ConvertUtils;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 @Data
 public class VideoListVo implements Serializable {
@@ -43,9 +41,7 @@ public class VideoListVo implements Serializable {
         VideoListVo videoListVo = ConvertUtils.copyProperties(videoModel, VideoListVo.class);
         String dateString = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format (videoModel.getUpdateTime() * 1000);
         videoListVo.setUpdateTime(dateString);
-//        if (videoModel.getPicture().startsWith("http:")) {
-        videoListVo.setPicture(Constants.PROXY_SERVER_PREFIX + videoModel.getPicture());
-//        }
+        videoListVo.setPicture(SpringContext.getBean(ConfigService.class).getProxyPrefix() + videoModel.getPicture());
         return videoListVo;
     }
 

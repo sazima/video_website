@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 @RestController
 @RequestMapping("/video")
 public class VideoController {
@@ -26,6 +29,8 @@ public class VideoController {
     public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam, UserModel userModel) {
         if (StringUtils.isBlank(videoQueryParam.getKw())) {
             videoQueryParam.setKw(null);
+        } else {
+            videoQueryParam.setKw(videoQueryParam.getKw().trim());
         }
         return videoService.pageByQuery(videoQueryParam, pageParam, userModel);
     }

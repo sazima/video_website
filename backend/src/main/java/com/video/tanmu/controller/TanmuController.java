@@ -5,6 +5,8 @@ import com.video.tanmu.param.TanmuQueryParam;
 import com.video.tanmu.result.Response;
 import com.video.tanmu.service.TanmuService;
 import com.video.tanmu.vo.VideoTanmuVo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/tanmu")
 public class TanmuController {
+
+    Logger logger = LoggerFactory.getLogger(TanmuController.class);
+
     @Autowired
     private TanmuService tanmuService;
 
@@ -28,6 +33,4 @@ public class TanmuController {
     public Response<Integer> insert(@RequestBody TanmuInsertParam tanmuInsertParam) {
         return tanmuService.insert(tanmuInsertParam);
     }
-
-
 }

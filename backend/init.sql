@@ -46,6 +46,7 @@ ALTER TABLE `video_link`
 CREATE TABLE video_tanmu
 (
     id               INT(11) PRIMARY KEY AUTO_INCREMENT,
+
     video_link_id    INT(11) NOT NULL,
     video_id         INT(11) NOT NULL,
     from_name        VARCHAR(255) DEFAULT '播放地址1' COMMENT '播放来源',
@@ -79,7 +80,7 @@ CREATE TABLE user
 
 );
 
-# 用户收藏
+// 用户收藏
 create table user_favorite
 (
     id         INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -87,4 +88,13 @@ create table user_favorite
     av   varchar(255) not null comment '视频av号码',
     video_name varchar(255) default '' comment '视频名称',
     add_time int(11) default 0 comment '收藏时间'
-)
+);
+
+create table `config`
+(
+    id         INT(11) PRIMARY KEY AUTO_INCREMENT,
+    `name`  varchar(255) default '' comment 'key',
+    value varchar(255) default ''
+);
+ALTER TABLE `config`
+    ADD INDEX `name` (`name`);

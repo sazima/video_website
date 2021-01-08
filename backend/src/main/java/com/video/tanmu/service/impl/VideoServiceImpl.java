@@ -1,19 +1,19 @@
 package com.video.tanmu.service.impl;
 
-import com.video.tanmu.constants.Constants;
-import com.video.tanmu.model.UserModel;
-import com.video.tanmu.redis.VideoKey;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
+import com.video.tanmu.model.UserModel;
 import com.video.tanmu.model.VideoLinkModel;
 import com.video.tanmu.model.VideoModel;
 import com.video.tanmu.param.PageParam;
 import com.video.tanmu.param.VideoQueryParam;
+import com.video.tanmu.redis.RedisClient;
+import com.video.tanmu.redis.VideoKey;
 import com.video.tanmu.result.PageData;
 import com.video.tanmu.result.Response;
+import com.video.tanmu.service.ConfigService;
 import com.video.tanmu.service.VideoService;
 import com.video.tanmu.utils.ConvertUtils;
-import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.vo.VideoDetailVo;
 import com.video.tanmu.vo.VideoListVo;
 import com.video.tanmu.vo.VideoPlayGroup;
@@ -37,6 +37,9 @@ public class VideoServiceImpl implements VideoService {
     private VideoLinkDao videoLinkDao;
 
     @Autowired
+    private ConfigService configService;
+
+    @Autowired
     private RedisClient redisClient;
 
     @Override
@@ -50,7 +53,8 @@ public class VideoServiceImpl implements VideoService {
         }
         List<VideoModel> videoModels = null;
         if (null == userModel) {
-            videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize(), Constants.needLoginTypeId);
+            List<Integer> noLoginTypeId = configService.getNoLoginTypeId();
+            videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize(), noLoginTypeId);
         } else {
             videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize(), null);
         }
