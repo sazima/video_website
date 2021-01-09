@@ -47,6 +47,11 @@ public class ConfigServiceImpl implements ConfigService {
         return getValueByName(SystemConfigNameConstants.PROXY_SERVER_PREFIX);
     }
 
+    @Override
+    public Boolean getRegisterSwitch() {
+        String value = getValueByName(SystemConfigNameConstants.REGISTER_SWITCH);
+        return value.equals("true");
+    }
     private String getValueByName(String name) {
         String key = ConfigKey.getRedisKeyByName(name);
         String value = redisClient.get(key, String.class);

@@ -6,6 +6,7 @@ import com.video.tanmu.param.UserRegisterParam;
 import com.video.tanmu.redis.RedisClient;
 import com.video.tanmu.redis.UserKey;
 import com.video.tanmu.result.Response;
+import com.video.tanmu.service.ConfigService;
 import com.video.tanmu.service.UserService;
 import com.video.tanmu.utils.AuthUtils;
 import com.video.tanmu.utils.ConvertUtils;
@@ -28,10 +29,16 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
 
     @Autowired
+    private ConfigService configService;
+
+    @Autowired
     private RedisClient redisClient;
 
     @Override
     public Response<Integer> register(UserRegisterParam userCreateParam) {
+        if (!configService.getRegisterSwitch()) {
+            return Response.fail("不提供注册服务");
+        }
         if (StringUtils.isBlank(userCreateParam.getEmail())){
             return Response.fail("邮箱不能为空");
         }

@@ -44,6 +44,10 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam, UserModel userModel) {
+        List<Integer> noLoginTypeId = configService.getNoLoginTypeId();
+        if (null == userModel && noLoginTypeId.contains(videoQueryParam.getTypeId())) {
+            return Response.success(new PageData<>());
+        }
         String totalKey = VideoKey.getTotalByQueryParam(videoQueryParam);
         Integer total = redisClient.get(totalKey, Integer.class);
         // total缓存
@@ -52,8 +56,7 @@ public class VideoServiceImpl implements VideoService {
             redisClient.set(totalKey, total);
         }
         List<VideoModel> videoModels = null;
-        if (null == userModel) {
-            List<Integer> noLoginTypeId = configService.getNoLoginTypeId();
+        if (null == userModel && videoQueryParam.getTypeId() == null) {
             videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize(), noLoginTypeId);
         } else {
             videoModels = videoDao.selectByQuery(videoQueryParam, pageParam.getOffset(), pageParam.getPageSize(), null);

@@ -9,4 +9,6 @@ public interface ConfigService {
     List<Integer> getNoLoginTypeId();
 
     String getProxyPrefix();
+
+    Boolean getRegisterSwitch();
 }

@@ -27,8 +27,7 @@ public class UserController {
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
     public Response<Integer> insert(@RequestBody UserRegisterParam userRegisterParam) {
-        return Response.fail("注册未开通");
-//        return userService.register(userRegisterParam);
+        return userService.register(userRegisterParam);
     }
 
 
