@@ -8,8 +8,10 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './assets/global.css'
 import Video from "video.js";
 import "video.js/dist/video-js.min.css"
+import "@silvermine/videojs-quality-selector/dist/css/quality-selector.css"
 import VConsole from 'vconsole'
 
+require('@silvermine/videojs-quality-selector')(Video);
 Vue.prototype.$video = Video
 
 

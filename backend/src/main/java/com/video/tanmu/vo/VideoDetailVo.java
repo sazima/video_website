@@ -1,5 +1,6 @@
 package com.video.tanmu.vo;
 
+import com.sun.corba.se.impl.ior.iiop.IIOPProfileTemplateImpl;
 import lombok.Data;
 
 import java.util.List;
@@ -32,4 +33,8 @@ public class VideoDetailVo {
      * 播放来源列表
      */
     private List<VideoPlayGroup> videoPlayGroupList;
+    /**
+     * 代理服务器
+     */
+    private List<String> proxyServicePrefixList;
 }

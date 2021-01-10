@@ -13,7 +13,7 @@ spring:
   redis:
     port: 6379
     host: raspberrypi
-    database: 1
+    database: 0
     prefix: 'tanmu::'
     expired-seconds: 72000
 

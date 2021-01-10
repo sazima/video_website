@@ -9,6 +9,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@silvermine/videojs-quality-selector": "^1.2.4",
     "@videojs/http-streaming": "^2.2.3",
     "axios": "^0.21.0",
     "bootstrap": "^4.5.3",

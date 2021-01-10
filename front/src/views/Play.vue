@@ -75,6 +75,7 @@ export default {
       sendTanmuButtonText: '发射',
       showTanmu: true,
       videoInfo: {},
+      urlName: {},
       currentPlayerTime: -1,
       danmuContainerHeight: 90,
       danmuContainerWidth: 90,
@@ -93,13 +94,10 @@ export default {
         playbackRates: [0.5, 1, 1.5, 2],// 倍速播放
         aspectRatio: '16:9',
         fluid: true,
-        sources: [{
-          type: "application/x-mpegURL",
-          src: this.src
-        }],
+        sources: this.src,
       };
       this.player = this.$video(this.$refs.videoPlayer, options)
-
+      this.player.controlBar.addChild('QualitySelector');  // 选择线路
       this.player.ready(() => {
         this.player.tech_.off('dblclick');
         this.player.on('dblclick', () => {
@@ -121,7 +119,7 @@ export default {
       if (!this.player) {
         this.createPlayer()
       } else {
-        this.player.src(urlName.url)
+        this.player.src(this.src)
         this.player.load()
         this.player.play()
       }
@@ -203,7 +201,7 @@ export default {
         av: this.av,
         playName: this.playName,
         fromName: this.fromName,
-        playUrl: this.src
+        playUrl: ""
       }).then(data => {
         console.log('获取弹幕成功', data)
         this.tanmuList = data

@@ -41,7 +41,7 @@ public class VideoListVo implements Serializable {
         VideoListVo videoListVo = ConvertUtils.copyProperties(videoModel, VideoListVo.class);
         String dateString = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format (videoModel.getUpdateTime() * 1000);
         videoListVo.setUpdateTime(dateString);
-        videoListVo.setPicture(SpringContext.getBean(ConfigService.class).getProxyPrefix() + videoModel.getPicture());
+//        videoListVo.setPicture(SpringContext.getBean(ConfigService.class).getProxyPrefix() + videoModel.getPicture());
         return videoListVo;
     }
 

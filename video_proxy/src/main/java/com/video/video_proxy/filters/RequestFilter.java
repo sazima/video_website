@@ -34,7 +34,6 @@ public class RequestFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletRequest request = ctx.getRequest();
-//        String url = UrlUtils.getProxyUrlFromRequest(request);
         String url = request.getParameter("url");
         log.info("request url " + url);
         // todo 验证

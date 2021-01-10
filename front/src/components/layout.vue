@@ -197,9 +197,6 @@ export default {
         sessionStorage.setItem('allType', JSON.stringify(allType))
         this.parseTypeList(allType)
       })
-    },
-    checkLogin(){
-      getLoginStatus()
     }
   },
   mounted() {
@@ -207,7 +204,7 @@ export default {
     if (!this.userInfo) {
       const userInfo = getUserInfo()
       if (userInfo) {
-        this.checkLogin().then(res => {
+        getLoginStatus().then(res => {
           console.log(res);
           this.userInfo = userInfo
         }).catch(err => {

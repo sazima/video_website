@@ -1,5 +1,6 @@
 package com.video.tanmu.service.impl;
 
+import com.video.tanmu.dao.ConfigDao;
 import com.video.tanmu.dao.VideoDao;
 import com.video.tanmu.dao.VideoLinkDao;
 import com.video.tanmu.model.UserModel;
@@ -14,22 +15,25 @@ import com.video.tanmu.result.Response;
 import com.video.tanmu.service.ConfigService;
 import com.video.tanmu.service.VideoService;
 import com.video.tanmu.utils.ConvertUtils;
+import com.video.tanmu.utils.RequestUtils;
 import com.video.tanmu.vo.VideoDetailVo;
 import com.video.tanmu.vo.VideoListVo;
 import com.video.tanmu.vo.VideoPlayGroup;
 import com.video.tanmu.vo.VideoPlayUrlVo;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class VideoServiceImpl implements VideoService {
+    Logger logger = LoggerFactory.getLogger(VideoService.class);
+
+
     @Autowired
     private VideoDao videoDao;
 
@@ -44,6 +48,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public Response<PageData<VideoListVo>> pageByQuery(VideoQueryParam videoQueryParam, PageParam pageParam, UserModel userModel) {
+        logger.info("{} query video list, type {}, kw {}", RequestUtils.getRemoteIp(), videoQueryParam.getTypeId(), videoQueryParam.getKw());
         List<Integer> noLoginTypeId = configService.getNoLoginTypeId();
         if (null == userModel && noLoginTypeId.contains(videoQueryParam.getTypeId())) {
             return Response.success(new PageData<>());
@@ -74,6 +79,7 @@ public class VideoServiceImpl implements VideoService {
         }
         VideoDetailVo videoDetailVoCache = redisClient.get(key, VideoDetailVo.class);
         if (null != videoDetailVoCache) {
+            logger.info("{}, 获取视频: {}", RequestUtils.getRemoteIp(), videoDetailVoCache.getName());
             return Response.success(videoDetailVoCache);
         }
         VideoModel videoModel = videoDao.selectByAv(av);
@@ -85,6 +91,7 @@ public class VideoServiceImpl implements VideoService {
         List<VideoPlayGroup> videoPlayGroupList = linksToPlayGroup(videoLinkModels);
         videoDetailVo.setVideoPlayGroupList(videoPlayGroupList);
         redisClient.set(key, videoDetailVo);
+        logger.info("{}, 获取视频: {}", RequestUtils.getRemoteIp(), videoModel.getName());
         return Response.success(videoDetailVo);
     }
 
@@ -97,17 +104,17 @@ public class VideoServiceImpl implements VideoService {
         HashMap<String, VideoPlayGroup> stringVideoPlayGroupHashMap = new HashMap<>();
 
         for (VideoLinkModel videoLinkModel : videoLinkModels) {
+            VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), Arrays.asList(
+                    new VideoPlayUrlVo.Url(videoLinkModel.getPlayUrl(), "原版线路", false),
+                    new VideoPlayUrlVo.Url( configService.getProxyPrefix() + videoLinkModel.getPlayUrl(), "加速线路", true)
+            ));
             if (stringVideoPlayGroupHashMap.containsKey(videoLinkModel.getFromName())) {
                 VideoPlayGroup videoPlayGroup = stringVideoPlayGroupHashMap.get(videoLinkModel.getFromName());
-                VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), videoLinkModel.getPlayUrl());
                 videoPlayGroup.getVideoPlayUrlVoList().add(videoPlayUrlVo);
             } else {
                 VideoPlayGroup videoPlayGroup = new VideoPlayGroup();
                 videoPlayGroup.setFromName(videoLinkModel.getFromName());
-
                 stringVideoPlayGroupHashMap.put(videoLinkModel.getFromName(), videoPlayGroup);
-
-                VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), videoLinkModel.getPlayUrl());
                 videoPlayGroup.setVideoPlayUrlVoList(new ArrayList<>(Collections.singletonList(videoPlayUrlVo)));
                 videoPlayGroupList.add(videoPlayGroup);
             }

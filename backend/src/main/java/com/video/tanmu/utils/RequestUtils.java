@@ -26,7 +26,7 @@ public class RequestUtils {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String ip = RequestUtils.getRemoteIp();
         String url = request.getRequestURL().toString();
-        String key = "req_limit_".concat(url).concat(ip);
+        String key = "req_limit_" + url + ip;
         return checkFrequency(key, count, limitTime);
     }
     public static boolean checkFrequency(String checkKey, Integer count, Integer limitTime) {

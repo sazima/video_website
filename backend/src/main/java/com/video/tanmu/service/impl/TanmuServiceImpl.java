@@ -55,15 +55,11 @@ public class TanmuServiceImpl implements TanmuService {
         Map<Integer, List<VideoTanmuVo>> tanmuMap = new HashMap<>();
         // 随机弹幕
         List<String> messageList = new ArrayList<>(configService.getRandomTanmuList());
-        if (messageList.size() > 0) {
-            tanmuMap.put(1, new ArrayList<>(Collections.singletonList(new VideoTanmuVo("前 30 秒系统自动发送 996 警告, 30 秒后恢复正常", 1.5, 1))));
-            tanmuMap.put(4, new ArrayList<>(Collections.singletonList(new VideoTanmuVo("前 30 秒系统自动发送 996 警告, 30 秒后恢复正常", 4.5, 4))));
-            for (int i = 5; i<=30; i+=2) {
-                if (messageList.size() == 0) {
-                    break;
-                }
-                tanmuMap.put(i, new ArrayList<>(Collections.singletonList(new VideoTanmuVo(messageList.remove(new Random().nextInt(messageList.size())), 0.5 + i, i))));
+        for (int i = 5; i <= 30; i += 2) {
+            if (messageList.size() == 0) {
+                break;
             }
+            tanmuMap.put(i, new ArrayList<>(Collections.singletonList(new VideoTanmuVo(messageList.remove(new Random().nextInt(messageList.size())), 0.5 + i, i))));
         }
         // 视频弹幕
         List<VideoTanmuModel> videoTanmusModels = videoTanmuDao.selectByVideo(videoModel.getId(), queryParam.getFromName(), queryParam.getPlayName());

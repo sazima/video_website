@@ -1,5 +1,7 @@
 server:
   port: 8889
+  compression:
+    enabled: true
 
 zuul:
   routes:
@@ -7,7 +9,6 @@ zuul:
       path: /video_proxy/**
       url: http://www.google.como
   ssl-hostname-validation-enabled: false
-
 
 logging:
   level:
