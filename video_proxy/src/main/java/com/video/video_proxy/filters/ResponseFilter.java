@@ -13,6 +13,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.POST_TYPE;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -55,6 +57,13 @@ public class ResponseFilter extends ZuulFilter {
             StrBuilder strBuilder = new StrBuilder();
             for (String s : split) {
                 if (s.startsWith("#")) {
+                    if (s.startsWith("#EXT-X-KEY:")) {
+                        Pattern p=Pattern.compile("URI=\"(.*?)\"");
+                        Matcher m=p.matcher(s);
+                        while(m.find()){
+                            s = s.replace(m.group(0), "URI=" + uri.resolve(m.group(1)));
+                        }
+                    }
                     strBuilder.append(s);
                 } else {
                     strBuilder.append(request.getServletPath()).append("?url=").append(uri.resolve(s).toString());

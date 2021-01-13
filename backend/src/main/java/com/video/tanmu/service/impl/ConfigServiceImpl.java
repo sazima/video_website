@@ -43,8 +43,12 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public String getProxyPrefix() {
-        return getValueByName(SystemConfigNameConstants.PROXY_SERVER_PREFIX);
+    public List<String> getProxyPrefixList() {
+        String value = getValueByName(SystemConfigNameConstants.PROXY_SERVER_PREFIX);
+        if (StringUtils.isEmpty(value)) {
+            return new ArrayList<>();
+        }
+        return JSON.parseArray(value, String.class);
     }
 
     @Override

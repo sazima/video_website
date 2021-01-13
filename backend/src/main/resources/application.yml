@@ -5,7 +5,7 @@ server:
 
 spring:
   profiles:
-    active: pro
+    active: dev
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     druid:

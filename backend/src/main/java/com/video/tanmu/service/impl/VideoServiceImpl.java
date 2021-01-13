@@ -103,11 +103,19 @@ public class VideoServiceImpl implements VideoService {
 
         HashMap<String, VideoPlayGroup> stringVideoPlayGroupHashMap = new HashMap<>();
 
+        List<String> proxyPrefixList = configService.getProxyPrefixList();
+
         for (VideoLinkModel videoLinkModel : videoLinkModels) {
-            VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), Arrays.asList(
-                    new VideoPlayUrlVo.Url(videoLinkModel.getPlayUrl(), "原版线路", false),
-                    new VideoPlayUrlVo.Url( configService.getProxyPrefix() + videoLinkModel.getPlayUrl(), "加速线路", true)
-            ));
+
+            ArrayList<VideoPlayUrlVo.Url> urls = new ArrayList<>();
+            urls.add(new VideoPlayUrlVo.Url(videoLinkModel.getPlayUrl(), "原版线路", false));
+            for (int i = 0 ; i< proxyPrefixList.size(); i++) {
+                urls.add(new VideoPlayUrlVo.Url(proxyPrefixList.get(i) + videoLinkModel.getPlayUrl(), "线路" + i, false));
+            }
+            urls.get(urls.size() - 1).setSelected(true);
+            VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), urls);
+
+
             if (stringVideoPlayGroupHashMap.containsKey(videoLinkModel.getFromName())) {
                 VideoPlayGroup videoPlayGroup = stringVideoPlayGroupHashMap.get(videoLinkModel.getFromName());
                 videoPlayGroup.getVideoPlayUrlVoList().add(videoPlayUrlVo);

@@ -9,6 +9,8 @@ zuul:
       path: /video_proxy/**
       url: http://www.google.como
   ssl-hostname-validation-enabled: false
+  host:
+    socket-timeout-millis: 30000
 
 logging:
   level:

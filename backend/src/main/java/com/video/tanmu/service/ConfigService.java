@@ -8,7 +8,7 @@ public interface ConfigService {
     //
     List<Integer> getNoLoginTypeId();
 
-    String getProxyPrefix();
+    List<String> getProxyPrefixList();
 
     Boolean getRegisterSwitch();
 }
