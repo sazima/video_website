@@ -61,7 +61,8 @@ public class ResponseFilter extends ZuulFilter {
                         Pattern p=Pattern.compile("URI=\"(.*?)\"");
                         Matcher m=p.matcher(s);
                         while(m.find()){
-                            s = s.replace(m.group(0), "URI=" + uri.resolve(m.group(1)));
+                            String newUri = "URI=\"" + request.getServletPath() + "?url=" + uri.resolve(m.group(1)) + "\"";
+                            s = s.replace(m.group(0), newUri);
                         }
                     }
                     strBuilder.append(s);
