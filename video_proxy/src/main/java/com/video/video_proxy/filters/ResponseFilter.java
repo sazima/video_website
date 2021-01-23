@@ -33,7 +33,11 @@ public class ResponseFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return true;
+        RequestContext context = RequestContext.getCurrentContext();
+
+        HttpServletRequest request = context.getRequest();
+        String urlString = request.getParameter("url");
+        return urlString.endsWith("m3u8");
     }
 
     @SneakyThrows
@@ -44,9 +48,6 @@ public class ResponseFilter extends ZuulFilter {
 
         HttpServletRequest request = context.getRequest();
         String urlString = request.getParameter("url");
-        if (!urlString.endsWith("m3u8")) {
-            return null;
-        }
         try (final InputStream responseDataStream = context.getResponseDataStream()) {
             if (responseDataStream == null) {
                 return null;
