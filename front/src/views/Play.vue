@@ -8,7 +8,7 @@
       </b-row>
       <b-row align-h="center">
         <b-col cols="12" md="8" ref="videoCol">
-          <video id="vid1" ref="videoPlayer" class="video-js" controls playsinline>
+          <video id="vid1" ref="videoPlayer" class="video-js" controls playsinline style="top: 50%; height: 100%; transform: translateY(-50%); ">
             <source type="application/x-mpegURL"/>
           </video>
           <tanmu ref="tanmu" v-show='showTanmu' :height="danmuContainerHeight" :width="danmuContainerWidth"></tanmu>
