@@ -56,6 +56,8 @@ function requestFullScreen(ele) {
             document.mozCancelFullScreen();
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
+        } else {
+            console.log('error1');
         }
     } else {
         if (ele.requestFullscreen) {
@@ -64,7 +66,10 @@ function requestFullScreen(ele) {
             ele.mozRequestFullScreen();
         } else if (ele.webkitRequestFullScreen) {
             ele.webkitRequestFullScreen();
+        } else {
+            console.log('error');
         }
+
     }
 }
 

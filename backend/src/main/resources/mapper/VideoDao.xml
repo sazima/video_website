@@ -176,4 +176,15 @@
             #{item}
         </foreach>
     </select>
+    <select id="selectByTypeIdAndSortByTanmuCount" resultMap="BaseResultMap">
+        SELECT
+        a.`id`, a.type_id1, a.type_id2, a.`name`, a.picture, a.content, a.av, a.update_time
+        from video a left join (
+            select video_id, count(0) as tanmu_count from video_tanmu where  video_id in (select id from video where  type_id2 = #{typeId} or type_id1 = #{typeId})  group by video_id order by `tanmu_count` desc limit 3
+        ) b
+            on a.id = b.video_id where  a.type_id2 = #{typeId} or a.type_id1 = #{typeId} order by b.tanmu_count desc, a.id desc limit #{limit}
+    </select>
+
+
+
 </mapper>

@@ -127,7 +127,19 @@ public class VideoServiceImpl implements VideoService {
                 videoPlayGroupList.add(videoPlayGroup);
             }
         }
+        // 排序，集数多的放前面
+        videoPlayGroupList.sort(new VideoPlayGroupComparator());
         return videoPlayGroupList;
     }
+    private static class VideoPlayGroupComparator implements Comparator<VideoPlayGroup>
+    {
+        public int compare(VideoPlayGroup a, VideoPlayGroup b)
+        {
+            return b.getVideoPlayUrlVoList().size() - a.getVideoPlayUrlVoList().size() ;
+        }
+
+    }
+
 
 }
+

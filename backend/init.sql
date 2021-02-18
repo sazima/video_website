@@ -80,7 +80,7 @@ CREATE TABLE user
 
 );
 
-// 用户收藏
+-- 用户收藏
 create table user_favorite
 (
     id         INT(11) PRIMARY KEY AUTO_INCREMENT,
@@ -96,5 +96,13 @@ create table `config`
     `name`  varchar(255) default '' comment 'key',
     value varchar(255) default ''
 );
+
+# create table `video_tanmu_count`
+# (
+#     id         INT(11) PRIMARY KEY AUTO_INCREMENT,
+#     video_id    int(11) not null comment '视频id',
+#     tanmu_count int(11) default 0 comment '弹幕数量'
+# );
+
 ALTER TABLE `config`
     ADD INDEX `name` (`name`);

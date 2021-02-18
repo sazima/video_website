@@ -68,7 +68,7 @@ public class TanmuServiceImpl implements TanmuService {
             if (tanmuMap.containsKey(tanmu.getCurrentTimeInt())) {
                 tanmuMap.get(tanmu.getCurrentTimeInt()).add(tanmuVo);
             } else {
-                tanmuMap.put(tanmu.getCurrentTimeInt(), Collections.singletonList(tanmuVo));
+                tanmuMap.put(tanmu.getCurrentTimeInt(), new ArrayList<>(Collections.singletonList(tanmuVo)));
             }
         }
         return Response.success(tanmuMap);

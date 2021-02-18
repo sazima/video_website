@@ -1,6 +1,6 @@
 # Requirement
 
-jdk1.8,@vue/cli 4
+jdk1.8,Node,Redis,MySQL
 
 
 # 说明

@@ -49,6 +49,7 @@ public class IndexServiceImpl implements IndexService {
                 }
                 parentTypeList.add(ConvertUtils.copyProperties(typeModel, TypeVo.class));
                 List<VideoModel> videoModels = videoDao.selectByTypeId(typeModel.getId(), 18);
+//                List<VideoModel> videoModels = videoDao.selectByTypeIdAndSortByTanmuCount(typeModel.getId(), 18);
                 TypeWithVideoListVo typeWithVideoListVo = new TypeWithVideoListVo();
                 typeWithVideoListVo.setTypeId(typeModel.getId());
                 typeWithVideoListVo.setTypeName(typeModel.getName());
@@ -75,4 +76,5 @@ public class IndexServiceImpl implements IndexService {
         indexTreeVo.setTypeWithVideoListVoList(disPlayTypeListVo);
         return Response.success(indexTreeVo);
     }
+
 }

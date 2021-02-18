@@ -23,6 +23,9 @@ public interface VideoDao {
 
     List<VideoModel> selectByTypeId(@Param("typeId")Integer typeId, @Param("limit") Integer limit);
 
+    // 获取弹幕最多的 3 个， 其他的按照 id 倒排
+    List<VideoModel> selectByTypeIdAndSortByTanmuCount(@Param("typeId")Integer typeId, @Param("limit") Integer limit);
+
     List<VideoModel> selectByQuery(@Param("videoQueryParam") VideoQueryParam videoQueryParam,
                                    @Param("offset") Integer offset,
                                    @Param("limit") Integer limit,
