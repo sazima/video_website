@@ -2,3 +2,5 @@ sqlalchemy
 requests
 xmltodict
 typing_extensions
+pytz
+pymysql
