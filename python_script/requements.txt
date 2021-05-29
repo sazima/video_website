@@ -1,0 +1,4 @@
+sqlalchemy
+requests
+xmltodict
+typing_extensions

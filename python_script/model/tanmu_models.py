@@ -27,6 +27,7 @@ class Video(Base):
     content = Column(Text, comment='简介内容')
     av = Column(String(255), comment='编码')
     update_time = Column(INTEGER(11), server_default=text("'0'"))
+    api_update_time = Column(INTEGER(11), nullable=True)
 
 
 class VideoLink(Base):

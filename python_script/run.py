@@ -1,139 +1,116 @@
+import datetime
 import traceback
 import uuid
-from typing import Sequence, Dict, List
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-from model.video_models import MacVod, MacType
-from model.tanmu_models import Video, VideoLink, Type
+from collections import defaultdict
 
-# cms 数据库
-cms_engine = create_engine('mysql+pymysql://root:root@raspberrypi:3306/video')
-# 弹幕应用数据库
-tanmu_engine = create_engine('mysql+pymysql://root:root@raspberrypi:3306/tanmu_video')
-cms_Session = scoped_session(sessionmaker(bind=cms_engine))
-tanmu_session = scoped_session(sessionmaker(bind=tanmu_engine))
+from client.collection_client import VideoCollectionClient
+from config import Config
+from model.tanmu_models import Video, Type, VideoLink
+from utils.logger_factory import LoggerFactory
 
 
-def copy_type():
-    tanmu_session.query(Type).delete()
-    all_type = cms_Session.query(MacType).all()  # type: Sequence[MacType]
-    for t in all_type:
-        type_ = Type()
-        type_.name = t.type_name
-        type_.id = t.type_id
-        type_.parent_type = t.type_pid
-        type_.sort = t.type_sort
-        tanmu_session.add(type_)
-        tanmu_session.commit()
-    print('success copy type')
-
-
-def _mac_cms_to_tanmu_sring():
-    latest_video = tanmu_session.query(Video).order_by(Video.update_time.desc()).first()  # type: Video  # 最新的视频
-    if latest_video:
-        start_time = latest_video.update_time
-    else:
-        start_time = 1
-
-    all_new_update_videos = cms_Session.query(MacVod).filter(MacVod.vod_time > start_time).all()  # type:  Sequence[MacVod]  # maccms 中新更新的视频
-    new_in_tanmu = tanmu_session.query(Video).filter(Video.id.in_([x.vod_id for x in all_new_update_videos]))  # tanmuapp中 新更新的视频
-    new_in_tanmu_dict = {x.id: x for x in new_in_tanmu}  # type: Dict[int, Video]
-
-    total = cms_Session.query(MacVod).filter(MacVod.vod_time > start_time).count()
-    count = 0
-    insert_objects = []  # 插入内容
-    delete_video_link_vid = []  # type: List[int]  # 删除内容
-    for v in all_new_update_videos:
-        count += 1
-        tanmu_video = new_in_tanmu_dict.get(v.vod_id)
-        if tanmu_video:
-            if tanmu_video.update_time == v.vod_time:
-                print(f"{count}/{total}, 忽略： {v.vod_name}")
-                continue
-            else:
-                print(f"{count}/{total}, 更新： {v.vod_name}")
-                delete_video_link_vid.append(v.vod_id)
-        else:
-            print(f"{count}/{total}, 添加： {v.vod_name}")
-            tanmu_video = Video()
-            tanmu_video.id = v.vod_id
-            tanmu_video.av = uuid.uuid4().hex
-        tanmu_video.type_id1 = v.type_id
-        tanmu_video.type_id2 = v.type_id_1
-        tanmu_video.name = v.vod_name
-        tanmu_video.picture = v.vod_pic
-        tanmu_video.content = v.vod_content
-        tanmu_video.update_time = v.vod_time
-        # 播放链接
-        parsed = _parse_vod_play_url(v.vod_play_url, v.vod_play_from)
-        for item in parsed:
-            vod_play_from = item.get('vod_play_from')
-            links = item.get('links')
-            for link in links:
-                name = link.get('name')
-                url = link.get('url')
-                if len(url) > 254:
-                    continue
-                video_link = VideoLink()
-                video_link.play_url = url
-                video_link.play_name = name
-                video_link.from_name = vod_play_from
-                video_link.video_id = v.vod_id
-                insert_objects.append(video_link)
-        insert_objects.append(tanmu_video)
-        if len(insert_objects) >= 100:
-            tanmu_session.query(VideoLink).filter(VideoLink.video_id.in_(delete_video_link_vid)).delete(synchronize_session=False)
-            tanmu_session.bulk_save_objects(insert_objects)
-            tanmu_session.commit()
-            insert_objects = list()
-            delete_video_link_vid = list()
-    if insert_objects:
-        tanmu_session.query(VideoLink).filter(VideoLink.video_id.in_(delete_video_link_vid)).delete(synchronize_session=False)
-        tanmu_session.bulk_save_objects(insert_objects)
-        tanmu_session.commit()
-
-
-def mac_cms_to_tanmu_sring():
-    try:
-        _mac_cms_to_tanmu_sring()
-    except Exception as e:
-        tanmu_session.rollback()
-        print(traceback.format_exc())
-
-
-def _parse_vod_play_url(play_url: str, vod_play_from: str):
-    vod_play_from_list = vod_play_from.split('$$$')
-
-    if play_url.startswith('http'):
-        return [{
-            'play_line_name': '播放地址1',
-            'vod_play_from': vod_play_from_list[0],
-            'links': [{'name': '在线播放', 'url': play_url}]
-        }]
-
-    play_group_links = play_url.split('$$$')
-    play_group_links_list = []
-    for index, links_str in enumerate(play_group_links):
-        name_eps = links_str.split('$$')
-        links_list = []  # type: List[Link]
-        for eps in name_eps:
-            for ep in eps.split('#'):
-                if '$' in ep:
-                    name, url = ep.split('$')
-                else:
-                    name, url = '第一集', ep
-                links_list.append({
-                    'name': name,
-                    'url': url
+def collection_video(key, hours):
+    logger = LoggerFactory.get_logger()
+    url = ''
+    bind_id_dict = dict()
+    for api in Config.api_list:
+        if api['key'] == key:
+            url = api['url']
+            bind_id_dict = api['bind_id']
+            break
+    if not url:
+        raise
+    vc = VideoCollectionClient(url)
+    api_type_id_to_name = vc.get_type_id_to_toname()
+    logger.info(f'所有分类: {api_type_id_to_name}')
+    # print(res)
+    page = 1
+    all_db_type = tanmu_session.query(Type).all()
+    id_to_type = {x.id: x for x in all_db_type}
+    while True:
+        video_list, page_count = vc.get_video_info_by_hours(hours, page)
+        logger.info(f'------{page}页/共{page_count}页------')
+        name_list = [x['name'] for x in video_list]
+        db_video_by_name_list = tanmu_session.query(Video).filter(Video.name.in_(name_list)).all()
+        name_to_video = {x.name: x for x in db_video_by_name_list}
+        for video in video_list:
+            type_id = video['tid']
+            if type_id not in bind_id_dict:
+                try:
+                    logger.info(f'分类未绑定, 跳过, {video["name"]} , 分类名称: {api_type_id_to_name[video["tid"]]}')
+                except KeyError:
+                    logger.info(f'分类未绑定, 跳过, {video["name"]} , 分类id: {video["tid"]}')
+            db_video_by_name = name_to_video.get(video['name'])
+            # 当数据库中存储的api更新时间 小于 当前获取到更新过时间， 就更新
+            if not db_video_by_name:
+                # 创建
+                logger.info(f'创建, {video["name"]}')
+                insert_video = Video()
+                insert_video.type_id1 = bind_id_dict[type_id]
+                insert_video.type_id2 = id_to_type[bind_id_dict[type_id]].parent_type
+                insert_video.name = video['name']
+                insert_video.picture = video['pic']
+                insert_video.content = video['des']
+                insert_video.av = uuid.uuid4().hex
+                insert_video.update_time = int(datetime.datetime.now().timestamp())
+                insert_video.api_update_time = video['last']
+                tanmu_session.add(insert_video)
+                tanmu_session.flush()
+                insert_player_list = []
+                for play in video['play_list']:
+                    video_link = VideoLink()
+                    video_link.video_id = insert_video.id
+                    video_link.play_url = play['url']
+                    video_link.play_name = play['name']
+                    video_link.from_name = play['player_name']
+                    insert_player_list.append(video_link)
+                tanmu_session.bulk_save_objects(insert_player_list)
+            elif db_video_by_name.api_update_time is None or\
+                    db_video_by_name.api_update_time < video['last']:
+                # 更新
+                tanmu_session.query(Video).filter(Video.id == db_video_by_name.id).update({
+                    'name': video['name'],
+                    'picture': video['pic'],
+                    'content': video['des'],
+                    'update_time': int(datetime.datetime.now().timestamp()),
+                    'api_update_time':  video['last']
                 })
-        play_group_links_list.append({
-            'play_line_name': '播放地址{}'.format(index + 1),
-            'vod_play_from': vod_play_from_list[index],
-            'links': links_list
-        })
-    return play_group_links_list
+                new_player_to_name = defaultdict(list)
+                for play in video['play_list']:
+                    # 根据 播放器和名称查询， 有则修改， 无则更新， 该播放器不存在的视频名字将删除
+                    video_link = tanmu_session.query(VideoLink).filter(VideoLink.video_id==db_video_by_name.id,
+                                                          VideoLink.from_name == play['player_name'],
+                                                          VideoLink.play_name == play['name']).first()
+                    if not video_link:
+                        video_link = VideoLink()
+                        video_link.video_id = db_video_by_name.id
+                    video_link.play_url = play['url']
+                    video_link.play_name = play['name']
+                    video_link.from_name = play['player_name']
+                    tanmu_session.add(video_link)
+                    tanmu_session.flush()
+                    new_player_to_name[play['player_name']].append(play['name'])
+                for player_name, name_list in new_player_to_name.items():  # 删除该播放器旧的播放链接
+                    tanmu_session.query(VideoLink).filter(VideoLink.video_id==db_video_by_name.id,
+                                                          VideoLink.from_name == player_name,
+                                                          VideoLink.play_name.notin_(name_list)).delete()
+                logger.info('更新 ' + video['name'])
+            else:
+                logger.info('跳过 ' + video['name'])
+        page += 1
+        if page > page_count:
+            break
 
 
 if __name__ == '__main__':
-    # copy_type()
-    mac_cms_to_tanmu_sring()
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker, scoped_session
+    tanmu_engine = create_engine(Config.sql_url)
+    tanmu_session = scoped_session(sessionmaker(bind=tanmu_engine))
+    try:
+        collection_video('tiankong', 48)
+        tanmu_session.commit()
+    except Exception:
+        tanmu_session.rollback()
+        LoggerFactory.get_logger().error(traceback.format_exc())
+        raise
