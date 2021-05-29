@@ -4,6 +4,7 @@ import com.google.common.io.CharStreams;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
+import com.sun.jndi.toolkit.url.Uri;
 import lombok.SneakyThrows;
 import org.apache.commons.lang.text.StrBuilder;
 
@@ -31,13 +32,16 @@ public class ResponseFilter extends ZuulFilter {
         return 0;
     }
 
+    @SneakyThrows
     @Override
     public boolean shouldFilter() {
         RequestContext context = RequestContext.getCurrentContext();
 
         HttpServletRequest request = context.getRequest();
         String urlString = request.getParameter("url");
-        return urlString.endsWith("m3u8");
+        URL url = new URL(urlString);
+        return url.getPath().endsWith("m3u8");
+
     }
 
     @SneakyThrows

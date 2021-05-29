@@ -7,7 +7,7 @@ zuul:
   routes:
     api:
       path: /video_proxy/**
-      url: http://www.google.como
+      url: http://www.google.com
   ssl-hostname-validation-enabled: false
   host:
     socket-timeout-millis: 30000

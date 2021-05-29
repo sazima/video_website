@@ -9,9 +9,3 @@ services:
 
     deploy:
       replicas: 3
-
-# docker build -t proxy .
-#  docker stack deploy -c docker-compose.yml proxy
-  docker service rm  proxy
- # video2.wktadmin.com video3.wktadmin.com  video4.wktadmin.com video5.wktadmin.com
-

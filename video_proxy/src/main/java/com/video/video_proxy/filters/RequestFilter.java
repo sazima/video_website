@@ -7,11 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class RequestFilter extends ZuulFilter {
 
+    private static final String HEADER_HOST = "Host";
     private static Logger log = LoggerFactory.getLogger(RequestFilter.class);
 
     @Override
@@ -41,8 +43,11 @@ public class RequestFilter extends ZuulFilter {
             throw new Exception("xxx");
         }
         try {
-            ctx.setRouteHost(new URL(url));
+            URL u = new URL(url);
+            ctx.setRouteHost(u);
+            ctx.getZuulRequestHeaders().clear();  // 去掉一些转发的头
             ctx.set("requestURI", "");
+            ctx.getZuulRequestHeaders().put("Host", u.getHost());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
