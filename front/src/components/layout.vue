@@ -21,6 +21,7 @@
                           @keydown.enter.native="listenEnterKey"/>
             <b-button size="sm" class="my-2 my-sm-0" @click="search">Search</b-button>
           </b-nav-form>
+          <b-nav-item href="https://www.github.com/sazima/video_website" target="_blank"> GitHub </b-nav-item>
           <b-nav-item v-if="!userInfo" v-b-modal="'loginModal'">
             <span>未登录</span>
           </b-nav-item>
@@ -31,6 +32,7 @@
             <b-dropdown-item href="#">更多功能， 敬请期待</b-dropdown-item>
             <b-dropdown-item href="#" @click="signOut">退出</b-dropdown-item>
           </b-nav-item-dropdown>
+
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>

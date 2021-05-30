@@ -112,7 +112,7 @@ public class VideoServiceImpl implements VideoService {
             for (int i = 0 ; i< proxyPrefixList.size(); i++) {
                 urls.add(new VideoPlayUrlVo.Url(proxyPrefixList.get(i) + videoLinkModel.getPlayUrl(), "线路" + i, false));
             }
-            urls.get(urls.size() - 1).setSelected(true);
+            urls.get(0).setSelected(true);
             VideoPlayUrlVo videoPlayUrlVo = new VideoPlayUrlVo(videoLinkModel.getPlayName(), urls);
 
 

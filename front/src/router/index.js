@@ -30,6 +30,11 @@ const routes = [
     path: '/share',
     name: 'share',
     component: () => import(/* webpackChunkName: "about" */ '../views/ShareScreen')
+  },
+  {
+    path: '/admin/Collect',
+    name: 'Collect',
+    component: () => import(/* webpackChunkName: "about" */ '../views/admin/Collect')
   }
 ]
 

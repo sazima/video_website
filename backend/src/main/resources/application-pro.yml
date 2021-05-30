@@ -3,19 +3,22 @@ server:
   servlet:
     context-path: /api
 
+collection:
+  url: http://localhost:8888
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://raspberrypi:3306/tanmu_video?useUnicode=true&characterEncoding=utf8
+    url: jdbc:mysql://127.0.0.1:3306/tanmu_video?useUnicode=true&characterEncoding=utf8
     username: root
     password: root
 
   redis:
     port: 6379
-    host: raspberrypi
+    host: 127.0.0.1
     database: 1
     prefix: 'tanmu::'
-    expired-seconds: 72000
+    expired-seconds: 7200
 
 
 logging:

@@ -19,7 +19,8 @@ CREATE TABLE video
     picture     VARCHAR(255)                DEFAULT '' COMMENT '图片',
     content     TEXT COMMENT '简介内容',
     random_id   VARCHAR(255) COMMENT '随机id' DEFAULT 0,
-    update_time INT(11)                     DEFAULT 0 COMMENT '更新时间'
+    update_time INT(11)                     DEFAULT 0 COMMENT '更新时间',
+    api_update_time INT(11)                     DEFAULT 0 COMMENT '采集api给的更新时间'
 );
 
 ALTER TABLE `video`
@@ -106,3 +107,13 @@ create table `config`
 
 ALTER TABLE `config`
     ADD INDEX `name` (`name`);
+
+create table `third_collection_api`
+(
+    id         INT(11) PRIMARY KEY AUTO_INCREMENT,
+    `url`  varchar(255) default '' comment 'api 链接',
+    `key`  varchar(255) default '' comment '唯一标志',
+    `name`  varchar(255) default '' comment '名称,显示在页面上',
+    bind_id     TEXT COMMENT '分类绑定'
+)
+

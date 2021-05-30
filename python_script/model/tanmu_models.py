@@ -53,3 +53,13 @@ class VideoTanmu(Base):
     current_time = Column(Float(5), server_default=text("'0.00'"), comment='弹幕时间')
     current_time_int = Column(INTEGER(11), server_default=text("'0'"), comment='时间取整数')
     video_id = Column(INTEGER(11), nullable=False)
+
+
+class ThirdApi(Base):
+    __tablename__ = 'third_collection_api'
+
+    id = Column(INTEGER(11), primary_key=True)
+    key = Column(String(255), comment='唯一标志')
+    url = Column(String(255), comment='链接')
+    name = Column(String(255), comment='名称')
+    bind_id = Column(Text,  comment='分类绑定设置， json字符串')
