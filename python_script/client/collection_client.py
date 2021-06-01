@@ -23,11 +23,12 @@ class VideoCollectionClient:
         url = self.video_info_list_url.format(hours=hours, page=page)
         response = requests.get(url)
         o = xmltodict.parse(response.text)
-        vide_list = o['rss']['list']['video']
-        # size = o['rss']['list']['@pagesize']
+        video_list = o['rss']['list']['video']
+        if isinstance(video_list, dict):
+            vide_list = [video_list]
         page_count = o['rss']['list']['@pagecount']
         return_list = list()  # type: List[ApiVideoEntity]
-        for video in vide_list:
+        for video in video_list:
             last = int(datetime.datetime.strptime(video['last'], '%Y-%m-%d %H:%M:%S').timestamp())
             item = {
                 'last': last,
