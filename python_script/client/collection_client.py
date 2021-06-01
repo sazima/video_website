@@ -25,7 +25,7 @@ class VideoCollectionClient:
         o = xmltodict.parse(response.text)
         video_list = o['rss']['list']['video']
         if isinstance(video_list, dict):
-            vide_list = [video_list]
+            video_list = [video_list]
         page_count = o['rss']['list']['@pagecount']
         return_list = list()  # type: List[ApiVideoEntity]
         for video in video_list:
