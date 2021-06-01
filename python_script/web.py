@@ -83,6 +83,7 @@ class MainHandler(tornado.web.RequestHandler):
                             msg = f'分类未绑定, 跳过, {video["name"]} , 分类id: {video["tid"]}'
                         logger.info(msg)
                         self._key_to_task_info[key].append(msg)
+                        continue
                     db_video_by_name = name_to_video.get(video['name'])
                     # 当数据库中存储的api更新时间 小于 当前获取到更新过时间， 就更新
                     if not db_video_by_name:
