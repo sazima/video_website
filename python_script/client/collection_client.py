@@ -10,7 +10,7 @@ from entity.api_video_entity import ApiVideoEntity
 class VideoCollectionClient:
     def __init__(self, base_url: str):
         self.base_url = base_url
-        self.index_url = self.base_url
+        self.index_url = self.base_url + '?ac=list'
         self.video_info_list_url = base_url + '?ac=videolist&t=&pg=&h={hours}&ids=&wd=&pg={page}'
 
     def get_type_id_to_toname(self) -> Dict[int, str]:
@@ -29,7 +29,10 @@ class VideoCollectionClient:
         page_count = o['rss']['list']['@pagecount']
         return_list = list()  # type: List[ApiVideoEntity]
         for video in video_list:
-            last = int(datetime.datetime.strptime(video['last'], '%Y-%m-%d %H:%M:%S').timestamp())
+            if ':' in video['last']:
+                last = int(datetime.datetime.strptime(video['last'], '%Y-%m-%d %H:%M:%S').timestamp())
+            else:
+                last = int(datetime.datetime.strptime(video['last'], '%Y-%m-%d').timestamp())
             item = {
                 'last': last,
                 'id': video['id'],
@@ -47,7 +50,7 @@ class VideoCollectionClient:
             text = video['dl']['dd']['#text']
             name_url_list = text.split('#')
             for name_url in name_url_list:
-                name, url = name_url.split('$')
+                name, url, *_ = name_url.split('$')
                 play_list.append({
                     'name': name,
                     'url': url,

@@ -94,7 +94,7 @@ class MainHandler(tornado.web.RequestHandler):
                         insert_video.type_id2 = id_to_type[bind_id_dict[type_id]].parent_type
                         insert_video.name = video['name']
                         insert_video.picture = video['pic']
-                        insert_video.content = video['des']
+                        insert_video.content = video['des'] or ' '
                         insert_video.av = uuid.uuid4().hex
                         insert_video.update_time = int(datetime.datetime.now().timestamp())
                         insert_video.api_update_time = video['last']
@@ -115,7 +115,7 @@ class MainHandler(tornado.web.RequestHandler):
                         tanmu_session.query(Video).filter(Video.id == db_video_by_name.id).update({
                             'name': video['name'],
                             'picture': video['pic'],
-                            'content': video['des'],
+                            'content': video['des'] or ' ',
                             'update_time': int(datetime.datetime.now().timestamp()),
                             'api_update_time':  video['last']
                         })
