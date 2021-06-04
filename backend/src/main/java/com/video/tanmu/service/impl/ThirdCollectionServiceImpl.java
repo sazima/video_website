@@ -1,6 +1,7 @@
 package com.video.tanmu.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.video.tanmu.dao.ThirdCollectionApiDao;
 import com.video.tanmu.dao.TypeDao;
 import com.video.tanmu.model.ThirdCollectionApiModel;
@@ -74,7 +75,7 @@ public class ThirdCollectionServiceImpl implements ThirdCollectionService {
         model.setName(vo.getName());
         model.setKey(vo.getKey());
         model.setUrl(vo.getUrl());
-        model.setBindId(JSON.toJSONString(vo.getBindId()));
+        model.setBindId(JSON.toJSONString(vo.getBindId(), SerializerFeature.WriteMapNullValue));
         return model;
     }
 }

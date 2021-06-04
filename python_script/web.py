@@ -6,6 +6,7 @@ from collections import defaultdict
 
 import tornado.ioloop
 import tornado.web
+from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from tornado_request_mapping import request_mapping, Route
 
@@ -57,7 +58,8 @@ class MainHandler(tornado.web.RequestHandler):
 
     def _do_get_types_by_key(self, key: str):
         start_time = datetime.datetime.now()
-        tanmu_session = scoped_session(sessionmaker(bind=Config.tanmu_engine))
+        tanmu_engine = create_engine(Config.sql_url)
+        tanmu_session = scoped_session(sessionmaker(tanmu_engine))
         LoggerFactory.get_logger().info('获取分类 key -> {}'.format(key))
         try:
             third_api_entity = tanmu_session.query(ThirdApi).filter(ThirdApi.key == key).first()
@@ -76,7 +78,8 @@ class MainHandler(tornado.web.RequestHandler):
     def _do_collection_video_task(self, key, hours):
         lock.acquire(timeout=5)
         logger = LoggerFactory.get_logger()
-        tanmu_session = scoped_session(sessionmaker(bind=Config.tanmu_engine))
+        tanmu_engine = create_engine(Config.sql_url)
+        tanmu_session = scoped_session(sessionmaker(bind=tanmu_engine))
         try:
             self._key_to_task_info[key] = [datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
             third_api_entity = tanmu_session.query(ThirdApi).filter(ThirdApi.key == key).first()
@@ -166,9 +169,10 @@ class MainHandler(tornado.web.RequestHandler):
                             tanmu_session.flush()
                             new_player_to_name[play['player_name']].append(play['name'])
                         for player_name, name_list in new_player_to_name.items():  # 删除该播放器旧的播放链接
-                            tanmu_session.query(VideoLink).filter(VideoLink.video_id == db_video_by_name.id,
+                            res = tanmu_session.query(VideoLink).filter(VideoLink.video_id == db_video_by_name.id,
                                                                   VideoLink.from_name == player_name,
-                                                                  VideoLink.play_name.notin_(name_list)).delete()
+                                                                  VideoLink.play_name.notin_(name_list)).delete(synchronize_session=False)
+                            logger.info('delete count {}'.format(res))
                         msg = '更新 ' + video['name']
                     else:
                         msg = '跳过 ' + video['name']

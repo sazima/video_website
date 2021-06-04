@@ -39,13 +39,21 @@
         {{item.apiName}}:
         <b-form-select v-model="selectApiIdToSystemId[item.apiId]" :options="currentTypeOptions" size="sm" class="mt-3"></b-form-select>
       </div>
+      <b-button @click="refreshCollectionTypes">刷新</b-button>
+      <b-button @click="autoBindTypes">自动整理</b-button>
     </b-modal>
 
   </div>
 </template>
 
 <script>
-import {getAll, getTaskByKey, startCollection, updateOrCreateCollection} from "@/apis/collection";
+import {
+  getAll,
+  getTaskByKey,
+  refreshCollectionTypesByKey,
+  startCollection,
+  updateOrCreateCollection
+} from "@/apis/collection";
 import {getTypes} from "@/apis/video";
 
 export default {
@@ -118,41 +126,81 @@ export default {
     },
     showBindTypeModel(current){
       this.currentCollectionApi = current.item
-      this.currentTypeOptions = []
       this.selectApiIdToSystemId = {}
       this.systemTypeIdToName = {}
-      console.log(this.currentCollectionApi);
-      for (let item of this.allTypeList) {
-        this.currentTypeOptions.push({
+      this.refreshSelectOptions()
+      this.$refs.bindTypeModal.show()
+    },
+    refreshSelectOptions() {
+      this.currentTypeOptions = this.allTypeList.map(item => {
+        return {
           'text': item.name,
           'value': item.id
-        })
-      }
-      for (let item of current.item.bindId) {
+        }
+      })
+      for (let item of this.currentCollectionApi.bindId) {
         this.systemTypeIdToName[item.systemId] = item.typeName
         this.selectApiIdToSystemId[item.apiId] = item.systemId
       }
-      this.$refs.bindTypeModal.show()
     },
     closeBindType() {
 
     },
     submitBindType() {
+      let newBindId = []
       for (let item of this.currentCollectionApi.bindId) {
-        item.bindId = {
+        // if (item.apiId in  this.selectApiIdToSystemId)
+        const isBind = item.apiId in this.selectApiIdToSystemId
+        newBindId.push({
           apiId: item.apiId,
           apiName: item.apiName,
-          systemId: this.selectApiIdToSystemId[item.apiId],
-          typeName: this.systemTypeIdToName[this.selectApiIdToSystemId[item.apiId]]
-        }
+          systemId: isBind ? this.selectApiIdToSystemId[item.apiId] : null,
+          typeName: isBind ? this.systemTypeIdToName[this.selectApiIdToSystemId[item.apiId]] : null
+        })
       }
-      console.log('-------------------', this.currentCollectionApi);
+      this.currentCollectionApi.bindId = newBindId
       this.updateOrCreate()
     },
     getAllType(){
       getTypes().then(res => {
         this.allTypeList = res
       })
+    },
+    refreshCollectionTypes() {
+      let apiIds = this.currentCollectionApi.bindId.map(item => {
+        return item.apiId;
+      })
+      // 获取 第三方的分类
+      refreshCollectionTypesByKey(this.currentCollectionApi.key).then(res => {
+        for (let item of res.data) {
+          if (apiIds.indexOf(item.id) === -1) {
+            apiIds.push(item.id)
+            this.currentCollectionApi.bindId.push({
+              systemId: null,
+              apiId: item.id,
+              apiName: item.name,
+              typeName: null
+            })
+          }
+        }
+        this.refreshSelectOptions()
+      })
+    },
+    // 自动整理分类
+    autoBindTypes() {
+
+      let systemNameToId = {}
+      for (let item of this.allTypeList) {
+        systemNameToId[item.name] = item.id
+      }
+      console.log(this.currentCollectionApi.bindId);
+      for (let item of this.currentCollectionApi.bindId) {
+        if (item.apiName in systemNameToId) {
+          item.systemId = systemNameToId[item.apiName]
+          item.typeName = item.apiName
+        }
+      }
+      this.refreshSelectOptions()
     },
     showUpdateOrCreateModal(current) {
       this.currentCollectionApi = current.item

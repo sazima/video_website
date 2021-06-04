@@ -7,7 +7,6 @@ from sqlalchemy import create_engine
 class Config:
     logger_directory = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'log')
     sql_url = 'mysql+pymysql://root:root@192.168.10.131:3306/tanmu_video'
-    tanmu_engine = create_engine(sql_url)
 
 
 

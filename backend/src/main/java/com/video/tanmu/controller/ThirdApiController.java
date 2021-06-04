@@ -9,10 +9,7 @@ import com.video.tanmu.vo.ThirdCollectionApiVo;
 import com.video.tanmu.vo.ThirdTypesResponseDataVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -35,7 +32,7 @@ public class ThirdApiController {
     }
     @RequestMapping("/updateOrCreate")
     @ResponseBody
-    public Response<Integer> updateOrCreate(ThirdCollectionApiVo thirdCollectionApiVo){
+    public Response<Integer> updateOrCreate(@RequestBody  ThirdCollectionApiVo thirdCollectionApiVo){
         return thirdCollectionService.updateOrCreate(thirdCollectionApiVo);
     }
 

@@ -33,7 +33,7 @@ const routes = [
   },
   {
     path: '/admin/Collect',
-    name: 'Collect',
+    name: 'collect',
     component: () => import(/* webpackChunkName: "about" */ '../views/admin/Collect')
   }
 ]

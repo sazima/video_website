@@ -16,4 +16,8 @@ async function updateOrCreateCollection(data) {
     const url = '/admin/collection/updateOrCreate'
     return request.post(url, data)
 }
-export {getAll, startCollection, getTaskByKey, updateOrCreateCollection}
+async function  refreshCollectionTypesByKey(key) {
+    const url = '/admin/collection/getTypesByKey'
+    return request.get(url, {params: {key}})
+}
+export {getAll, startCollection, getTaskByKey, updateOrCreateCollection, refreshCollectionTypesByKey}
