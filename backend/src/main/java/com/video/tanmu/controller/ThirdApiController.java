@@ -6,6 +6,7 @@ import com.video.tanmu.result.Response;
 import com.video.tanmu.service.ThirdCollectionService;
 import com.video.tanmu.vo.TaskInfoVo;
 import com.video.tanmu.vo.ThirdCollectionApiVo;
+import com.video.tanmu.vo.ThirdTypesResponseDataVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,5 +53,12 @@ public class ThirdApiController {
         RestTemplate restTemplate = new RestTemplate();
         TaskInfoVo taskInfoVo = restTemplate.getForObject(collectionUrl + "/api/collectionVideo/get_task_by_key?key=" + key, TaskInfoVo.class);
         return Response.success(taskInfoVo);
+    }
+
+    @RequestMapping("/getTypesByKey")
+    public Response<ThirdTypesResponseDataVo> getTypesByKey(@RequestParam("key") String key){
+        RestTemplate restTemplate = new RestTemplate();
+        ThirdTypesResponseDataVo thirdTypesResponseDataVo = restTemplate.getForObject(collectionUrl + "/api/collectionVideo/get_types_by_key?key=" + key, ThirdTypesResponseDataVo.class);
+        return Response.success(thirdTypesResponseDataVo);
     }
 }

@@ -14,6 +14,7 @@ from config import Config
 from model.tanmu_models import ThirdApi, Type, Video, VideoLink
 from utils.logger_factory import LoggerFactory
 from threading import Thread, Lock
+
 lock = Lock()
 
 
@@ -21,6 +22,7 @@ lock = Lock()
 class MainHandler(tornado.web.RequestHandler):
     _key_to_task_info = defaultdict(list)
 
+    # 开始采集任务
     @request_mapping('/start_task', method='get')
     async def test(self):
         key = self.get_argument("key", "")  #
@@ -32,6 +34,16 @@ class MainHandler(tornado.web.RequestHandler):
         t.start()
         self.write({})
 
+    # 获取 采集网站的分类
+    @request_mapping('/get_types_by_key')
+    async def get_types_by_key(self):
+        key = self.get_argument("key", "")  #
+        return_list = await tornado.ioloop.IOLoop.current().run_in_executor(None, self._do_get_types_by_key, key)
+        self.write({
+            'data': return_list
+        })
+
+    # 获取采集执行的情况
     @request_mapping("/get_task_by_key")
     async def get_task_by_key(self):
         key = self.get_argument("key", "")  #
@@ -42,6 +54,24 @@ class MainHandler(tornado.web.RequestHandler):
         self.write({
             'data': result
         })
+
+    def _do_get_types_by_key(self, key: str):
+        start_time = datetime.datetime.now()
+        tanmu_session = scoped_session(sessionmaker(bind=Config.tanmu_engine))
+        LoggerFactory.get_logger().info('获取分类 key -> {}'.format(key))
+        try:
+            third_api_entity = tanmu_session.query(ThirdApi).filter(ThirdApi.key == key).first()
+            if not third_api_entity:
+                return_list = []
+            else:
+                vc = VideoCollectionClient(third_api_entity.url)
+                api_type_id_to_name = vc.get_type_id_to_toname()
+                return_list = [{'id': k, 'name': v} for k, v in api_type_id_to_name.items()]
+                return_list.sort(key=lambda x: int(x['id']))
+            return return_list
+        finally:
+            tanmu_session.remove()
+            LoggerFactory.get_logger().info('耗时 {} s'.format((datetime.datetime.now() - start_time).total_seconds()))
 
     def _do_collection_video_task(self, key, hours):
         lock.acquire(timeout=5)
@@ -117,14 +147,15 @@ class MainHandler(tornado.web.RequestHandler):
                             'picture': video['pic'],
                             'content': video['des'] or ' ',
                             'update_time': int(datetime.datetime.now().timestamp()),
-                            'api_update_time':  video['last']
+                            'api_update_time': video['last']
                         })
                         new_player_to_name = defaultdict(list)
                         for play in video['play_list']:
                             # 根据 播放器和名称查询， 有则修改， 无则更新， 该播放器不存在的视频名字将删除
-                            video_link = tanmu_session.query(VideoLink).filter(VideoLink.video_id==db_video_by_name.id,
-                                                                               VideoLink.from_name == play['player_name'],
-                                                                               VideoLink.play_name == play['name']).first()
+                            video_link = tanmu_session.query(VideoLink).filter(
+                                VideoLink.video_id == db_video_by_name.id,
+                                VideoLink.from_name == play['player_name'],
+                                VideoLink.play_name == play['name']).first()
                             if not video_link:
                                 video_link = VideoLink()
                                 video_link.video_id = db_video_by_name.id
@@ -135,7 +166,7 @@ class MainHandler(tornado.web.RequestHandler):
                             tanmu_session.flush()
                             new_player_to_name[play['player_name']].append(play['name'])
                         for player_name, name_list in new_player_to_name.items():  # 删除该播放器旧的播放链接
-                            tanmu_session.query(VideoLink).filter(VideoLink.video_id==db_video_by_name.id,
+                            tanmu_session.query(VideoLink).filter(VideoLink.video_id == db_video_by_name.id,
                                                                   VideoLink.from_name == player_name,
                                                                   VideoLink.play_name.notin_(name_list)).delete()
                         msg = '更新 ' + video['name']
@@ -155,11 +186,11 @@ class MainHandler(tornado.web.RequestHandler):
             raise
         finally:
             lock.release()
+            tanmu_session.remove()
 
 
 if __name__ == "__main__":
     app = tornado.web.Application()
-
     route = Route(app)
     route.register(MainHandler)
     app.listen(8888)
