@@ -37,12 +37,12 @@ public class ThirdApiController {
     }
 
     @RequestMapping("/startTask")
-    public Response<String> startTask(@RequestParam("key") String key, UserModel userModel){
+    public Response<String> startTask(@RequestParam("key") String key, @RequestParam("hour") String hour, UserModel userModel){
         if (null == userModel) {
             return new Response(ResponseCode.NOT_LOGIN);
         }
         RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(collectionUrl + "/api/collectionVideo/start_task?key=" + key, String.class);
+        String result = restTemplate.getForObject(collectionUrl + "/api/collectionVideo/start_task?key=" + key + "?hour=" + hour, String.class);
         return Response.success(result);
     }
     @RequestMapping("/getTaskByKey")
