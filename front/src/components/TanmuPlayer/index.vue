@@ -1,5 +1,5 @@
 <template>
-  <div ref="videoCol">
+  <div ref="videoCol" @keydown="keymonitor">
     <video id="vid1" ref="videoPlayer" class="video-js" controls playsinline  style="height: 100%;  ">
       <source type="application/x-mpegURL"/>
     </video>
@@ -127,6 +127,16 @@ export default {
         this.switchFull()
       }
     },
+    keymonitor(e) {
+      this.$refs.videoPlayer.focus()
+      if (e.keyCode === 39) {  // 向右
+        this.$refs.videoPlayer.currentTime += 15
+      } else if (e.keyCode === 37) {  // 向左
+        this.$refs.videoPlayer.currentTime -= 15
+      } else if (e.keyCode === 32) {
+        this.$refs.videoPlayer.paused === true ? this.$refs.videoPlayer.play() : this.$refs.videoPlayer.pause();
+      }
+    }
   },
   mounted() {
   },
