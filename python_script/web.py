@@ -27,7 +27,7 @@ class MainHandler(tornado.web.RequestHandler):
     @request_mapping('/start_task', method='get')
     async def test(self):
         key = self.get_argument("key", "")  #
-        hour = int(self.get_argument("hours", '24'))
+        hour = int(self.get_argument("hour", '24'))
         if lock.locked():
             LoggerFactory.get_logger().info('正在执行')
             return self.write({})
@@ -81,6 +81,7 @@ class MainHandler(tornado.web.RequestHandler):
         tanmu_engine = create_engine(Config.sql_url)
         tanmu_session = scoped_session(sessionmaker(bind=tanmu_engine))
         try:
+            print(key)
             self._key_to_task_info[key] = [datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')]
             third_api_entity = tanmu_session.query(ThirdApi).filter(ThirdApi.key == key).first()
             if not third_api_entity:

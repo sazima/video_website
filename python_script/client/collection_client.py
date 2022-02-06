@@ -23,7 +23,11 @@ class VideoCollectionClient:
         url = self.video_info_list_url.format(hours=hours, page=page)
         response = requests.get(url)
         o = xmltodict.parse(response.text)
-        video_list = o['rss']['list']['video']
+        # import ipdb; ipdb.set_trace()
+        if 'video' not in o['rss']['list']:
+            video_list = []
+        else:
+            video_list = o['rss']['list']['video']
         if isinstance(video_list, dict):
             video_list = [video_list]
         page_count = o['rss']['list']['@pagecount']
@@ -53,6 +57,8 @@ class VideoCollectionClient:
                 text = d['#text']
                 name_url_list = text.split('#')
                 for name_url in name_url_list:
+                    if not name_url:
+                        continue
                     name, url, *_ = name_url.split('$')
                     play_list.append({
                         'name': name,
