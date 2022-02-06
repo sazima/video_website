@@ -48,6 +48,8 @@ class VideoCollectionClient:
                 'play_list': list()
             }  # type: ApiVideoEntity
             # player_name_to_name_url_dict = dict()   # type: Dict[str, List[PlayLinkEntity]]
+            if not video or not video.get('dl'):
+                continue
             dd = video['dl']['dd']
             if isinstance(dd, dict):
                 dd = [dd]
@@ -74,6 +76,7 @@ class VideoCollectionClient:
 if __name__ == '__main__':
     url = 'http://api.leduozy.com/inc/api.php'
     url = 'https://www.ugvapi.com/inc/zyapimac.php'
+    url = 'http://sscj8.com/inc/api.php'
     vc = VideoCollectionClient(url)
     res = vc.get_video_info_by_hours(24, 1)
     print(res)
