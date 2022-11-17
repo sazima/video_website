@@ -125,7 +125,11 @@ class MainHandler(tornado.web.RequestHandler):
                         msg = f'创建, {video["name"]}'
                         insert_video = Video()
                         insert_video.type_id1 = bind_id_dict[type_id]
-                        insert_video.type_id2 = id_to_type[bind_id_dict[type_id]].parent_type
+                        try:
+                            insert_video.type_id2 = id_to_type[bind_id_dict[type_id]].parent_type
+                        except:
+                            import pdb; pdb.set_trace()
+                            a = 3
                         insert_video.name = video['name']
                         insert_video.picture = video['pic']
                         insert_video.content = video['des'] or ' '

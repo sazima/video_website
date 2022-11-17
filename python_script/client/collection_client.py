@@ -14,16 +14,15 @@ class VideoCollectionClient:
         self.video_info_list_url = base_url + '?ac=videolist&t=&pg=&h={hours}&ids=&wd=&pg={page}'
 
     def get_type_id_to_toname(self) -> Dict[int, str]:
-        response = requests.get(self.index_url)
+        response = requests.get(self.index_url, verify=False)
         o = xmltodict.parse(response.text)
         type_id_to_name = {int(x['@id']): x['#text'] for x in o['rss']['class']['ty']}
         return type_id_to_name
 
     def get_video_info_by_hours(self, hours: int, page=1) -> Tuple[List[ApiVideoEntity], int]:
         url = self.video_info_list_url.format(hours=hours, page=page)
-        response = requests.get(url)
+        response = requests.get(url, verify=False)
         o = xmltodict.parse(response.text)
-        # import ipdb; ipdb.set_trace()
         if 'video' not in o['rss']['list']:
             video_list = []
         else:
@@ -61,7 +60,11 @@ class VideoCollectionClient:
                 for name_url in name_url_list:
                     if not name_url:
                         continue
-                    name, url, *_ = name_url.split('$')
+                    try:
+                        name, url, *_ = name_url.split('$')
+                    except ValueError:
+                        print('value error ', name_url)
+                        continue
                     play_list.append({
                         'name': name,
                         'url': url,
