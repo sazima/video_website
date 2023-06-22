@@ -16,7 +16,8 @@
     "bootstrap-vue": "^2.18.1",
     "core-js": "^3.6.5",
     "crypto-js": "^4.0.0",
-    "dplayer": "^1.26.0",
+    "dplayer": "^1.27.1",
+    "hls.js": "^1.4.6",
     "qrcode.vue": "^3.2.2",
     "sass": "^1.28.0",
     "sass-loader": "^10.0.4",
@@ -31,13 +32,9 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^6.2.2",
     "vue-template-compiler": "^2.6.11",
     "webpack-merge": "^5.2.0"
   }

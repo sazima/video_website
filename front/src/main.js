@@ -6,18 +6,13 @@ import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 import './assets/global.css'
-import Video from "video.js";
 import "video.js/dist/video-js.min.css"
 import "@silvermine/videojs-quality-selector/dist/css/quality-selector.css"
 import VConsole from 'vconsole'
 
-require('@silvermine/videojs-quality-selector')(Video);
-Vue.prototype.$video = Video
-
-
-if (process.env.NODE_ENV === 'cordova') {
-  new VConsole()
-}
+// if (process.env.NODE_ENV === 'development') {
+new VConsole()
+// }
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 

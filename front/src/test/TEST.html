@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="dplayer" style="font-size: 50px; position: relative"></div>
+<script src="DPlayer.min.js"></script>
+<script>
+    // 另一种方式，使用 customType
+    var tanmuurl = 'https://video4.wktadmin.com:11111/api/tanmu/'
+    // tanmuurl = 'http://127.0.0.1:8081/api/tanmu/v3/?id=d73abc2dc5b64d96a9a7cbcfc5b240b5~tkm3u8~HD'
+    // var url='https://v6.dious.cc/20220514/Aj5HHX4c/index.m3u8'
+    var url = 'http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4'
+    const dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        danmaku: {
+            api: tanmuurl,
+            user: 'DIYgod',
+            id: 'd73abc2dc5b64d96a9a7cbcfc5b240b5~tkm3u8~HD'
+        },
+        video: {
+            url: url,
+        },
+    });
+</script>
+</body>
+</html>

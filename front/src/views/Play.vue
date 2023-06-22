@@ -8,25 +8,8 @@
       </b-row>
       <b-row align-h="center">
         <b-col cols="12" md="8">
-          <tanmu-player ref="tanmuPlayer" ></tanmu-player>
-        </b-col>
-      </b-row>
-      <b-row align-h="center" style="margin-top: 20px">
-        <b-col cols="9" md="7">
-          <b-input-group  >
-            <b-form-input placeholder="弹幕内容" v-model="inputTanmu">
-
-            </b-form-input>
-            <b-input-group-append>
-
-              <b-button variant="outline-primary" @click="submitTanmu" :disabled="!canSubmitTanmu || !inputTanmu"
-                        style="float: right">{{ sendTanmuButtonText }}
-              </b-button>
-            </b-input-group-append>
-          </b-input-group>
-        </b-col>
-        <b-col cols="3" md="1">
-          <b-button>投屏</b-button>
+          <div id="dplayer" ref="dplayer" >
+          </div>
         </b-col>
       </b-row>
 
@@ -66,17 +49,21 @@
 <script>
 import {addTanmu, getTanmu, getVideoById} from "@/apis/video";
 // import tanmu from '../components/tanmu'
-import TanmuPlayer from "@/components/TanmuPlayer/index";
+// import TanmuPlayer from "@/components/TanmuPlayer/index";
+import DPlayer from 'dplayer';
+// no-unused-vars
+import Hls from 'hls.js';
+
 
 export default {
   name: "Play",
-  components: {TanmuPlayer},
+  components: {},
   data() {
     return {
       player: null,
       av: '',
       inputTanmu: '',
-      sendTanmuButtonText: '发射',
+      // sendTanmuButtonText: '发射',
       videoInfo: {},
       urlName: {},
       canSubmitTanmu: true,
@@ -86,56 +73,35 @@ export default {
     };
   },
   methods: {
-    submitTanmu() {
-      // 为空不能发送
-      if (!this.inputTanmu.trim()) {
-        return
-      }
-      this.canSubmitTanmu = false
-      const currentTime = this.$refs.tanmuPlayer.player.cache_.currentTime
-      let tanmuData = {
-        av: this.av,
-        playUrl: this.arc,
-        currentTime: currentTime,
-        fromName: this.fromName,
-        playName: this.playName,
-        content: this.inputTanmu
-      }
-      addTanmu(tanmuData)  // 调用接口
-      this.$refs.tanmuPlayer.pushTanmu(tanmuData)
-      this.inputTanmu = ''
-      let remainSenconds = 10  // 设置10s间隔, 不能发送太频繁
-      let i = setInterval(() => {
-        if (remainSenconds <= 0) {
-          this.sendTanmuButtonText = '发射'
-          this.canSubmitTanmu = true
-          clearInterval(i)
-          return
-        }
-        this.sendTanmuButtonText = `${remainSenconds}s`
-        remainSenconds--
-      }, 1000)
-    },
-    initTanmu() {
-      getTanmu({
-        av: this.av,
-        playName: this.playName,
-        fromName: this.fromName,
-        playUrl: ""
-      }).then(data => {
-        console.log('获取弹幕成功', data)
-        this.tanmuList = data
-        this.$refs.tanmuPlayer.setTanmu(data)
-      }).catch(err => {
-        console.log('获取弹幕失败', err)
-      })
-    },
     startPlay(urlName, fromName) {
       this.playName = urlName.name
       this.fromName = fromName
       document.title = this.videoInfo.name + this.playName
-      this.$refs.tanmuPlayer.startPlay(urlName)
-      this.initTanmu()
+      // 初始化 MuiPlayer 插件，MuiPlayer 方法传递一个对象，该对象包括所有插件的配置
+      const baseUrl = process.env.VUE_APP_BASE_URL || window.location.protocol + "://" + window.location.host
+      const url = `${baseUrl}/tanmu/`
+      const dp = new DPlayer({
+        container: document.getElementById('dplayer'),
+        danmaku: {
+          api: url,
+          user: 'DIYgod',
+          bottom: '15%',
+          unlimited: true,
+          speedRate: 0.5,
+          id: `${this.av}~${this.fromName}~${this.playName}`
+        },
+        video: {
+          url: urlName.url[0].src,
+          type: 'customHls',
+          customType: {
+            customHls: function (video, player) {
+              const hls = new Hls();
+              hls.loadSource(video.src);
+              hls.attachMedia(video);
+            },
+          },
+        },
+      });
     }
   },
   mounted() {
@@ -147,6 +113,7 @@ export default {
     })
   }
 }
+
 </script>
 
 <style scoped>
