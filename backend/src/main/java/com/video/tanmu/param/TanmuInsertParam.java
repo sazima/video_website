@@ -25,4 +25,5 @@ public class TanmuInsertParam {
      */
     private Double currentTime;
 
+    private String style;
 }

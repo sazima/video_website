@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/tanmu")
@@ -46,7 +45,7 @@ public class TanmuController {
 
     @RequestMapping("/getByVideo")
     @ResponseBody
-    public Response<Map<Integer, List<VideoTanmuVo>>> selectByVideo(TanmuQueryParam tanmuQueryParam) {
+    public Response<List<VideoTanmuVo>> selectByVideo(TanmuQueryParam tanmuQueryParam) {
         return tanmuService.selectByVideo(tanmuQueryParam);
     }
 

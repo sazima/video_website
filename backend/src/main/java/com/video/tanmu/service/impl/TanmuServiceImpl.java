@@ -43,7 +43,7 @@ public class TanmuServiceImpl implements TanmuService {
     private RedisClient redisClient;
 
     @Override
-    public Response<Map<Integer, List<VideoTanmuVo>>> selectByVideo(TanmuQueryParam queryParam) {
+    public Response<List<VideoTanmuVo>> selectByVideo(TanmuQueryParam queryParam) {
         if (null == queryParam.getAv()) {
             return Response.fail("指定视频av");
         }
@@ -68,15 +68,12 @@ public class TanmuServiceImpl implements TanmuService {
         }
         // 视频弹幕
         List<VideoTanmuModel> videoTanmusModels = videoTanmuDao.selectByVideo(videoModel.getId(), queryParam.getFromName(), queryParam.getPlayName());
+        ArrayList<VideoTanmuVo> result = new ArrayList<>();
         for (VideoTanmuModel tanmu : videoTanmusModels) {
             VideoTanmuVo tanmuVo = ConvertUtils.copyProperties(tanmu, VideoTanmuVo.class);
-            if (tanmuMap.containsKey(tanmu.getCurrentTimeInt())) {
-                tanmuMap.get(tanmu.getCurrentTimeInt()).add(tanmuVo);
-            } else {
-                tanmuMap.put(tanmu.getCurrentTimeInt(), new ArrayList<>(Collections.singletonList(tanmuVo)));
-            }
+            result.add(tanmuVo);
         }
-        return Response.success(tanmuMap);
+        return Response.success(result);
     }
     @Override
     public Response<ArrayList> selectByVideoV3(TanmuQueryV3Param queryParam) {
@@ -97,8 +94,8 @@ public class TanmuServiceImpl implements TanmuService {
             Integer type = 0;
             if (!StringUtils.isEmpty(style)) {
                 Map<String, String> parse = (Map<String, String>) JSON.parse(style);
-                color = Integer.valueOf(parse.get("color"));
-                type = Integer.valueOf(parse.get("type"));
+                color = Integer.valueOf(parse.getOrDefault("color", "16777215"));
+                type = Integer.valueOf(parse.getOrDefault("type", "0"));
             }
             List<? extends Serializable> l = Arrays.asList(model.getCurrentTime(), type, color, "test11111", model.getContent());
             voList.add(l);
@@ -179,7 +176,7 @@ public class TanmuServiceImpl implements TanmuService {
         if (null == videoLinkModel) {
             return Response.fail("没有该视频选集");
         }
-        if (!RequestUtils.checkFrequency(1, 10)) {
+        if (!RequestUtils.checkFrequency(1, 3)) {
             return Response.fail("你太快了");
         }
         VideoTanmuModel videoTanmuModel = new VideoTanmuModel();
@@ -191,6 +188,7 @@ public class TanmuServiceImpl implements TanmuService {
         videoTanmuModel.setVideoLinkId(videoLinkModel.getId());
         videoTanmuModel.setCurrentTime(tanmuInsertParam.getCurrentTime());
         videoTanmuModel.setCurrentTimeInt(tanmuInsertParam.getCurrentTime().intValue());
+        videoTanmuModel.setStyle(tanmuInsertParam.getStyle());
         int inserted = videoTanmuDao.insertSelective(videoTanmuModel);
         return Response.success(inserted);
     }

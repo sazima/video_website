@@ -11,7 +11,7 @@ import "@silvermine/videojs-quality-selector/dist/css/quality-selector.css"
 import VConsole from 'vconsole'
 
 // if (process.env.NODE_ENV === 'development') {
-new VConsole()
+// new VConsole()
 // }
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
