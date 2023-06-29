@@ -16,13 +16,22 @@
         <b-col cols="12" md="8">
           <b-card>
             <b-tabs card style="background-color: #fff">
-              <b-tab v-for="(group, index) in videoInfo.videoPlayGroupList"
-                     :key="index" :title="group.fromName" ref="tab" :active="false">
-                <b-button v-for="(urlName, index) in group.videoPlayUrlVoList" :key="index"
-                          @click="startPlay(urlName, group.fromName)"
-                          variant="outline-primary">
-                  {{ urlName.name }}
-                </b-button>
+              <b-tab v-for="(group, groupIndex) in videoInfo.videoPlayGroupList" :key="groupIndex"
+                     :title="group.fromName" ref="tab" :active="false">
+                <b-container>
+                  <b-row align-h="left">
+                    <b-col cols="4" v-for="(epInfo, epIndex) in group.videoPlayUrlVoList" :key="epIndex"
+                           style="margin-top: 5px">
+                      <router-link :to="{name: 'play', query: {groupIndex: groupIndex, epIndex: epIndex, av: av}}"
+                                   style="text-decoration: none; color: #000" @click.native="initData">
+                        <b-button variant="outline-primary" style="width: 100px">
+                          {{ epInfo.name }}
+                        </b-button>
+                      </router-link>
+                    </b-col>
+                  </b-row>
+                </b-container>
+
               </b-tab>
             </b-tabs>
           </b-card>
@@ -48,8 +57,6 @@
 
 <script>
 import {addTanmu, getTanmu, getVideoById} from "@/apis/video";
-// import tanmu from '../components/tanmu'
-// import TanmuPlayer from "@/components/TanmuPlayer/index";
 // no-unused-vars
 import Hls from 'hls.js';
 import Artplayer from 'artplayer/dist/artplayer.legacy.js';
@@ -64,7 +71,6 @@ export default {
       player: null,
       av: '',
       videoInfo: {},
-      urlName: {},
       canSubmitTanmu: true,
       fromName: '',  // 链接来源
       playName: '',
@@ -73,7 +79,6 @@ export default {
   },
   methods: {
     submitTanmu(t) {
-      // {mode: 0, color: '#FFFFFF', border: true, text: '1', time: 13.284628}
       const style = {'color1': t.color, mode: t.mode, border: t.border}
       let tanmuData = {
         av: this.av,
@@ -95,26 +100,25 @@ export default {
       }).then(data => {
         let tanmuList = []
         for (const t of data) {
-            const style = t.style
-            let color1 = '#fff'
-            let border = false
-            let mode = 0
-            if (style) {
-              const styleJson = JSON.parse(style)
-              color1 = styleJson.color1 || color1
-              border = styleJson.border || border
-              mode = style.mode || mode
-            }
-            tanmuList.push({
-              text: t.content, // 弹幕文本
-              time: t.currentTime, // 发送时间，单位秒
-              color: color1, // 弹幕局部颜色
-              border: border, // 是否显示描边
-              mode: mode, // 弹幕模式: 0表示滚动, 1静止
-            })
+          const style = t.style
+          let color1 = '#fff'
+          let border = false
+          let mode = 0
+          if (style) {
+            const styleJson = JSON.parse(style)
+            color1 = styleJson.color1 || color1
+            border = styleJson.border || border
+            mode = style.mode || mode
+          }
+          tanmuList.push({
+            text: t.content, // 弹幕文本
+            time: t.currentTime, // 发送时间，单位秒
+            color: color1, // 弹幕局部颜色
+            border: border, // 是否显示描边
+            mode: mode, // 弹幕模式: 0表示滚动, 1静止
+          })
         }
         this.tanmuList = tanmuList
-        console.log('-------', this.tanmuList)
         this.player.plugins.artplayerPluginDanmuku.config({
           danmuku: this.tanmuList
         })
@@ -123,8 +127,10 @@ export default {
         console.log('获取弹幕失败', err)
       })
     },
-    startPlay(urlName, fromName) {
-      const src = urlName.url[0].src
+    startPlay(gropIndex, epIndex) {
+      const group = this.videoInfo.videoPlayGroupList[gropIndex]
+      const ep = group.videoPlayUrlVoList[epIndex]
+      const src = ep.url[0].src
       const option = {
         container: '.art',
         fullscreen: true,
@@ -140,7 +146,7 @@ export default {
           }),
         ],
       };
-      if (!this.player){
+      if (!this.player) {
         this.player = new Artplayer(option);
         this.player.on('artplayerPluginDanmuku:emit', (danmu) => {
           console.info('新增弹幕', danmu);
@@ -148,9 +154,10 @@ export default {
         });
       }
       this.player.url = src
-      this.playName = urlName.name
-      this.fromName = fromName
+      this.playName = ep.name
+      this.fromName = group.fromName
       document.title = this.videoInfo.name + this.playName
+
       function playM3u8(video, url, art) {
         if (Hls.isSupported()) {
           if (art.hls) art.hls.destroy();
@@ -165,20 +172,32 @@ export default {
           art.notice.show = 'Unsupported playback format: m3u8';
         }
       }
+
       this.initTanmu()
+    },
+    initData() {
+      this.$refs.art.style.height = '' + (this.$refs.art.clientWidth * 9 / 16) + 'px'
+      this.task = setInterval(() => {
+        this.$refs.art.style.height = '' + (this.$refs.art.clientWidth * 9 / 16) + 'px'
+      }, 5000)
+      const av = this.$route.query.av
+      const groupIndex = this.$route.query.grepIndex || 0
+      const epIndex = this.$route.query.epIndex || 0
+      if (this.av !== av) {
+        this.av = av
+        getVideoById(this.av).then(data => {
+          this.videoInfo = data
+          this.videoInfo.content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.content.replace(/\s*/g, "").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
+          this.startPlay(groupIndex, epIndex)
+        })
+      } else {
+        this.startPlay(groupIndex, epIndex)
+      }
+
     }
   },
   mounted() {
-    this.$refs.art.style.height = '' + (this.$refs.art.clientWidth * 9 / 16) + 'px'
-    this.task = setInterval(() => {
-      this.$refs.art.style.height = '' + (this.$refs.art.clientWidth * 9 / 16) + 'px'
-    }, 5000)
-    this.av = this.$route.query.av
-    getVideoById(this.av).then(data => {
-      this.videoInfo = data
-      this.videoInfo.content = "&nbsp;&nbsp;&nbsp;&nbsp;" + data.content.replace(/\s*/g, "").replace(/<br\/>*/, '<br> &nbsp;&nbsp;&nbsp;&nbsp;');
-      this.startPlay(this.videoInfo.videoPlayGroupList[0].videoPlayUrlVoList[0], this.videoInfo.videoPlayGroupList[0].fromName)
-    })
+    this.initData()
   },
   beforeDestroy() {
     if (this.task) {

@@ -20,6 +20,7 @@ import com.video.tanmu.vo.VideoDetailVo;
 import com.video.tanmu.vo.VideoListVo;
 import com.video.tanmu.vo.VideoPlayGroup;
 import com.video.tanmu.vo.VideoPlayUrlVo;
+import com.video.tanmu.vo.admin.QueryParamsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +94,11 @@ public class VideoServiceImpl implements VideoService {
         redisClient.set(key, videoDetailVo);
         logger.info("{}, 获取视频: {}", RequestUtils.getRemoteIp(), videoModel.getName());
         return Response.success(videoDetailVo);
+    }
+
+    @Override
+    public Response<QueryParamsVo> getAdminQueryParams() {
+        return null;
     }
 
     /**

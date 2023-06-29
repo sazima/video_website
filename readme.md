@@ -19,3 +19,11 @@ username: 1 password: 1
 ## Screenshot
 
 ![preview](./preview.png)
+
+
+
+## todo
+- 每集url都不一样
+- 删除proxy
+- 弹幕创建时间
+- 后台管理

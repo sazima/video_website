@@ -29,5 +29,5 @@ module.exports = {
     }
   },
   outputDir: process.env.NODE_ENV === 'production' ? 'dist' : 'video_cordova/www',
-  publicPath: './'
+  publicPath: '/'
 }

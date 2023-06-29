@@ -19,6 +19,9 @@ public class RequestUtils {
         if (StringUtils.isEmpty(remoteAddr) || remoteAddr.equals(RequestUtils.LOCALHOST_IPV6) || remoteAddr.equals(RequestUtils.LOCALHOST_IPV4)) {
             remoteAddr = request.getHeader("Cf-Connecting-Ip");
         }
+        if (StringUtils.isEmpty(remoteAddr)) {
+            remoteAddr = request.getHeader("x-forwarded-for");
+        }
         return remoteAddr;
     }
 

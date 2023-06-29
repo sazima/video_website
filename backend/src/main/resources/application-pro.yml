@@ -18,7 +18,7 @@ spring:
     host: 127.0.0.1
     database: 1
     prefix: 'tanmu::'
-    expired-seconds: 7200
+    expired-seconds: 360
 
 
 logging:
